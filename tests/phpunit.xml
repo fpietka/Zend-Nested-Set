@@ -1,0 +1,13 @@
+<phpunit
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    stopOnFailure="true"
+    syntaxCheck="true"
+    bootstrap="./TestHelper.php">
+
+    <testsuite name="MyProject Test Suite">
+        <directory>./</directory>
+    </testsuite>
+</phpunit>

@@ -1,0 +1,28 @@
+/**
+ * # MyProject - BaseZF Sample Project
+ *
+ * # Maintainers
+ *  - Harold Thetiot (hthetiot) - <hthetiot@gmail.com>
+ *
+ * # Example Release Changelog entry
+ *
+ * Release N.N (YYYY/MM/DD HH:MM)
+ * --------------
+ *     + Optimized
+ *     - ...
+ *
+ *     + Changes
+ *     - ...
+ *
+ *     + Security Fixes
+ * 	   - ...
+ *
+ *     + Bugs
+ * 	   - Fixed bug #00001 (trac ticket ID), example... (hthetiot)
+ *
+ */
+
+
+Release 0.7 (2009/09/18 11:46)
+--------------
+   + Initial public release

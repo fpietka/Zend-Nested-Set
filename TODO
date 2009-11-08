@@ -1,0 +1,10 @@
+Add elements (with or without parents)
+Non-recursive delete (move up children elements)
+Select:
+    - entire tree from an element
+    - leafs (orphant elements)
+    - Direct children
+Get properties:
+    - if an element has a parent
+    - if an element has children
+    - level in the tree of the element
