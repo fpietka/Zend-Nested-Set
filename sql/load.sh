@@ -1,10 +1,10 @@
 #!/bin/sh
 # load.sh - A simple bash database loader
 #
-# Usage: load.sh (struct|default|sample|index|test|clean|update|upgrade|optimize|backup|restore|install|help) <db_name> <db_username> [host_name] [option]
+# Usage: load.sh (struct|default|sample|reset|index|test|clean|update|upgrade|optimize|backup|restore|install|help) <db_name> <db_username> [host_name] [option]
 #
-# @copyright  Copyright (c) 2008 BaseZF
-# @author     Harold Thétiot (hthetiot)
+# @copyright  Copyright (c) 2009 Nextcode
+# @author     FranÃ§ois Pietka
 # @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 
 
@@ -14,7 +14,7 @@ if [ -d ./sql ]; then
 elif [ -f ./load.sh ]; then
    ROOT_DIR=`pwd`
 else
-   echo "$0 mush be run inside application base dir !"
+   echo "$0 must run from base application directory !"
    exit 1
 fi
 
@@ -26,6 +26,7 @@ UPGRADE_DIR=$SCHEMA_DIR/upgrade
 DATA_DIR=$ROOT_DIR/data
 SAMPLE_DIR=$DATA_DIR/sample
 DEFAULT_DIR=$DATA_DIR/default
+TRUNCATE_DIR=$DATA_DIR/truncate
 
 #
 # Arguments
@@ -96,6 +97,24 @@ default_action()
     notice "Done"
 }
 
+#
+# Load default data to database
+#
+truncate_action()
+{
+    check_params
+
+    notice "Truncate table(s):"
+
+    FILE_LIST="`ls $TRUNCATE_DIR | grep \"\.sql$\"`"
+
+    for file in ${FILE_LIST}
+    do
+    import_file ${TRUNCATE_DIR}/${file} "- Load \"${TRUNCATE_DIR}/${file}\"" "Can't load default data"
+    done
+
+    notice "Done"
+}
 
 #
 # Load sample data to database
@@ -126,6 +145,18 @@ index_action()
 
     # load indexes
     import_file $SCHEMA_DIR/indexes.sql "Indexes and foreign keys: loaded" "Can't load indexes and foreign keys"
+}
+
+#
+# Struct, default, sample, index commands together
+#
+reset_action()
+{
+    check_params
+    truncate_action
+    default_action
+    sample_action
+    index_action
 }
 
 #
@@ -404,11 +435,12 @@ exec_query()
 usage()
 {
     echo "Usage:"
-    echo "  load.sh (struct|default|sample|index|test|clean|update|upgrade|optimize|backup|restore|install|help) <db_name> <db_username> [host_name] [option]"
+    echo "  load.sh (struct|default|sample|reset|index|test|clean|update|upgrade|optimize|backup|restore|install|help) <db_name> <db_username> [host_name] [option]"
     echo "where:"
     echo "  struct      - create tables"
     echo "  default     - load default data to database"
     echo "  sample      - load sample data to database"
+    echo "  reset       - truncate table(s) and load sample data to database"
     echo "  index       - create primary and foreighn keys and indexes"
     echo "  test        - struct, default, sample, index commands together"
     echo "  clean       - struct, default, index commands together"
@@ -456,7 +488,7 @@ notice()
 
 # debug
 if [ "${action}" ]; then
-    warn "Exec action \"$action\" on database \"$db_name\" as \"$db_username\" user on \"$db_hostname\" server"
+    warn "Execute action \"$action\" on database \"$db_name\" as \"$db_username\" user on \"$db_hostname\" server"
 fi
 
 # bootstrap
@@ -465,6 +497,7 @@ case "${action}" in
     # deploy and test actions
     struct)     struct_action;;
     sample)     sample_action;;
+    reset)      reset_action;;
     index)      index_action;;
     test)       test_action;;
     default)    default_action;;
