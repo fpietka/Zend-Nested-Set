@@ -1,8 +1,8 @@
 /**
- * # MyProject - BaseZF Sample Project
+ * # NestedSet - Nested Set model for Zend Framework
  *
  * # Maintainers
- *  - Harold Thetiot (hthetiot) - <hthetiot@gmail.com>
+ *  - François Pietka (fpietka) - <francois@pietka.fr>
  *
  * # Example Release Changelog entry
  *
@@ -18,11 +18,11 @@
  * 	   - ...
  *
  *     + Bugs
- * 	   - Fixed bug #00001 (trac ticket ID), example... (hthetiot)
+ * 	   - Fixed bug #00001 (trac ticket ID), example... (fpietka)
  *
  */
 
 
-Release 0.7 (2009/09/18 11:46)
+Release 0.3 (2009/11/08 23:33)
 --------------
    + Initial public release

@@ -38,4 +38,12 @@ class Nestedset_Example
     {
         return $this->_property;
     }
+
+    /**
+     * Test if holes exist in the left/right id
+     */
+    public function hasHole()
+    {
+        // return true/false
+    }
 }

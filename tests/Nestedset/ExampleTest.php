@@ -74,6 +74,36 @@ class Nestedset_ExampleTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test add function
+     */
+    public function testAddNode()
+    {
+        // add into
+        // add before
+        // add after
+    }
+
+    /**
+     * Test delete function
+     */
+    public function deleteAddNode()
+    {
+        // delete one
+        // delete recursive
+    }
+
+    /**
+     * Test move function
+     */
+    public function testAddNode()
+    {
+        // move into
+        // move before
+        // move after
+    }
+
+
+    /**
      * Call after all tests and on class test loading
      */
     public function tearDown()

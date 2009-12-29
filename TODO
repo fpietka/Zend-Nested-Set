@@ -1,10 +1,27 @@
 Add elements (with or without parents)
 Non-recursive delete (move up children elements)
+
 Select:
-    - entire tree from an element
     - leafs (orphant elements)
     - Direct children
+
 Get properties:
     - if an element has a parent
     - if an element has children
-    - level in the tree of the element
+    - level in the tree of the element !!!
+
+Get a path for current element (navigation path)
+
+Handle getParent with a detph value (default is first)
+
+----------------
+-- Unit tests --
+----------------
+
+- Assert return values are what they should be (arrays mostly)
+
+- Assert that there's no "hole" when deleting/moving/adding elements
+- Assert there's no cross ids when deleting/mobing/adding elements
+
+- Assert XML output is valid
+- Assert Array output is an array

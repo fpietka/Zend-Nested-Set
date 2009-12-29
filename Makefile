@@ -16,8 +16,8 @@
 #  - clean                      Remove the staged files
 #  - update                     Update from current GIT repository
 #
-# @copyright  Copyright (c) 2008 BaseZF
-# @author     Harold Thetiot (hthetiot)
+# @copyright  Copyright (c) 2009 Nextcode
+# @author     Francois Pietka (fpietka)
 # @license	  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 
 # Binary
@@ -33,8 +33,8 @@ DOXYGEN = doxygen
 # Project ID
 PROJECT_NAME = Nestedset
 PROJECT_VERSION = alpha
-PROJECT_MAINTAINER =
-PROJECT_MAINTAINER_COURRIEL = debug@nextcode.fr
+PROJECT_MAINTAINER = Francois Pietka
+PROJECT_MAINTAINER_COURRIEL = francois@pietka.fr
 
 # Path
 ROOT = .

@@ -1,11 +1,11 @@
 <?php
 /**
- * TestHelper.php for MyProject in /tests/
+ * TestHelper.php for NestedSet in /tests/
  *
  * @category   MyProject
  * @package    MyProject_UnitTest
  * @copyright  Copyright (c) 2008
- * @author     Harold Thetiot (hthetiot)
+ * @author     Francois Pietka (fpietka)
  */
 
 //---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ date_default_timezone_set('GMT');
 //---------------------------------------------------------------------------
 // Define usefull paths
 
-define('ZF_PATH', '/home/hthetiot/src/ZendFramework-1.9.2-minimal');
+define('ZF_PATH', '/var/www/lib/zf-1.9.2');
 define('BASE_PATH', realpath(dirname(__FILE__) . '/..'));
 
 //---------------------------------------------------------------------------
@@ -59,5 +59,3 @@ if (!@include_once('Zend/Loader/Autoloader.php')) {
 $autoloader = Zend_Loader_Autoloader::getInstance();
 $autoloader->setFallbackAutoloader(true);
 $autoloader->suppressNotFoundWarnings(true);
-
-
