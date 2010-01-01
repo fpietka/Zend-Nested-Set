@@ -20,7 +20,10 @@
  * - toXml()
  * - toJson()
  *
- * @version 0.2
+ * Hierarchical data are handled as an array with depth information, but is
+ * never outputed that way.
+ *
+ * @version 0.4
  * @author  François Pietka (fpietka)
  *
  * Powered by Nextcode, 2009
@@ -54,17 +57,6 @@ class Nextcode_Model_NestedSet
     private $_db;
     private $_tableName;
 
-    /** Retrieving single path **/
-/*
-    $path = '
-        SELECT parent.name
-        FROM nested_category AS node,
-        nested_category AS parent
-        WHERE node.lft BETWEEN parent.lft AND parent.rgt
-        AND node.name = \'' . 'test' . '\'
-        ORDER BY parent.lft;
-    ';
- */
     public function __construct()
     {
     }
@@ -154,7 +146,7 @@ class Nextcode_Model_NestedSet
         $name = (string) $name;
 
         if (is_null($reference)) {
-            // In this case, add it to the end of the set
+            // In this case, add it to the end of the set at first level
             $select = $db->select();
             $select->from($this->_tableName, "MAX({$this->_structure['right']})");
 
@@ -288,16 +280,16 @@ class Nextcode_Model_NestedSet
             // update right
             $stmt = $db->query("
                 UPDATE {$this->_tableName}
-                SET {$this->_structure['right']} = {$this->_structure['right']} - $width
-                WHERE {$this->_structure['right']} > $right
+                   SET {$this->_structure['right']} = {$this->_structure['right']} - $width
+                 WHERE {$this->_structure['right']} > $right
             ");
             $update = $stmt->fetch();
 
             // update left
             $stmt = $db->query("
                 UPDATE {$this->_tableName}
-                SET {$this->_structure['left']} = {$this->_structure['left']} - $width
-                WHERE {$this->_structure['left']} > $right
+                   SET {$this->_structure['left']} = {$this->_structure['left']} - $width
+                 WHERE {$this->_structure['left']} > $right
             ");
             $update = $stmt->fetch();
 
@@ -322,33 +314,8 @@ class Nextcode_Model_NestedSet
     {
         $db = $this->_db;
 
-        // XXX
-        //
-        // One idea might be to get all information about the node (id, left,
-        // right) and it's children in an array. Then move as usual to make
-        // room.
-        //
-        // At the end we will have an array to work with: we will change
-        // left/right values of all element according to the new place of
-        // storage. Then we'll save them using id's (previously stored).
-        //
-        // XXX
-
-        $select = $db
-            ->select()
-            ->from($this->_tableName, array($this->_structure['left'], $this->_structure['right']))
-            ->where($this->_structure['id'] . ' = ?', $elementId);
-
-        $stmt    = $db->query($select);
-        $element = $stmt->fetch();
-
-        $select = $db
-            ->select()
-            ->from($this->_tableName, array($this->_structure['left'], $this->_structure['right']))
-            ->where($this->_structure['id'] . ' = ?', $referenceId);
-
-        $stmt      = $db->query($select);
-        $reference = $stmt->fetch();
+        $reference = $this->_getElement($referenceId);
+        $element   = $this->_getElement($elementId); // @TODO get one level, we don't need all this tree
 
         // error handling
         if (empty($element) || empty($reference)) {
@@ -357,15 +324,26 @@ class Nextcode_Model_NestedSet
 
         try {
             // Case INTO
+
+            // Check it can be moved into. XXX change when we'll get one level
+            if ($element[0][$this->_structure['left']] > $reference[0][$this->_structure['left']] &&
+                $element[0][$this->_structure['left']] < $reference[0][$this->_structure['right']]) {
+                // already into
+                return false;
+            }
+
             $db->beginTransaction();
             // first make room into reference
-            $elementWidth = $element[$this->_structure['right']] - $element[$this->_structure['left']] + 1;
+            // @TODO make a private method to make room
+            // with must always be a pair number
+            $elementWidth = $this->_getNodeWidth($elementId);
 
             // move right
+            $referenceRight = $reference[0][$this->_structure['right']];
             $stmt = $db->query("
                 UPDATE {$this->_tableName}
                    SET {$this->_structure['right']} = {$this->_structure['right']} + $elementWidth
-                 WHERE {$this->_structure['right']} >= {$reference[$this->_structure['right']]};
+                 WHERE {$this->_structure['right']} >= $referenceRight;
             ");
             $update = $stmt->fetch();
 
@@ -373,36 +351,71 @@ class Nextcode_Model_NestedSet
             $stmt = $db->query("
                 UPDATE {$this->_tableName}
                    SET {$this->_structure['left']} = {$this->_structure['left']} + $elementWidth
-                 WHERE {$this->_structure['left']} > {$reference[$this->_structure['right']]};
+                 WHERE {$this->_structure['left']} > $referenceRight;
             ");
             $update = $stmt->fetch();
 
-            // then move element (and it's children) XXX
-            // XXX works when moving to the left of the nest, not to the right
-            // move right
+            // then move element (and it's children)
+            $element    = $this->_getElement($elementId);
+            $elementIds = array();
+            foreach ($element as $one) {
+                array_push($elementIds, $one[$this->_structure['id']]);
+            }
+            $elementIds = implode(', ', $elementIds);
+
+            $difference = $reference[0][$this->_structure['right']] - $element[0][$this->_structure['left']];
+
             $stmt = $db->query("
                 UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} + $elementWidth
-                 WHERE {$this->_structure['right']} >= {$reference[$this->_structure['right']]};
+                   SET {$this->_structure['left']}  = {$this->_structure['left']}  + $difference,
+                       {$this->_structure['right']} = {$this->_structure['right']} + $difference
+                 WHERE {$this->_structure['id']} IN ($elementIds);
             ");
             $update = $stmt->fetch();
 
-            // move left
+            // move what was on the right of the element
             $stmt = $db->query("
                 UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} + $elementWidth
-                 WHERE {$this->_structure['left']} > {$reference[$this->_structure['right']]};
+                   SET {$this->_structure['left']} = {$this->_structure['left']} - $elementWidth
+                 WHERE {$this->_structure['left']} > {$element[0][$this->_structure['left']]};
             ");
             $update = $stmt->fetch();
 
-            // fill the hole XXX
-
+            $stmt = $db->query("
+                UPDATE {$this->_tableName}
+                   SET {$this->_structure['right']} = {$this->_structure['right']} - $elementWidth
+                 WHERE {$this->_structure['right']} > {$element[0][$this->_structure['right']]};
+            ");
+            $update = $stmt->fetch();
 
             $db->commit();
         } catch (Exception $e) {
             $db->rollBack();
             throw new Exception($e->getMessage());
         }
+
+        return true;
+    }
+
+    /**
+     * Get width of a node
+     *
+     * @param $elementId|int    Id of the node
+     *
+     * @return int
+     */
+    private function _getNodeWidth($elementId)
+    {
+        $db = $this->_db;
+
+        $stmt = $db->query("
+            SELECT {$this->_structure['right']} - {$this->_structure['left']} + 1
+              FROM {$this->_tableName}
+             WHERE {$this->_structure['id']} = $elementId;
+        ");
+        $width = $stmt->fetchColumn();
+
+        return $width;
     }
 
     /**
@@ -442,12 +455,14 @@ class Nextcode_Model_NestedSet
             SELECT
                 node.{$this->_structure['id']},
                 node.{$this->_structure['name']},
+                node.{$this->_structure['left']},
+                node.{$this->_structure['right']},
                 COUNT(parent.{$this->_structure['name']}) - 1 AS depth
             FROM
                 {$this->_tableName} AS node,
                 {$this->_tableName} AS parent
             WHERE node.{$this->_structure['left']} BETWEEN parent.{$this->_structure['left']} AND parent.{$this->_structure['right']}
-            GROUP BY node.{$this->_structure['id']}, node.{$this->_structure['name']}, node.{$this->_structure['left']}
+            GROUP BY node.{$this->_structure['id']}, node.{$this->_structure['name']}, node.{$this->_structure['left']}, node.{$this->_structure['right']}
         ";
 
         // Handle depth if required
@@ -488,7 +503,6 @@ class Nextcode_Model_NestedSet
 
     /**
      * Convert a tree array (with depth) into a hierarchical array.
-     * XXX not finished
      *
      * @param $tree|array   Array with depth value.
      *
@@ -503,23 +517,23 @@ class Nextcode_Model_NestedSet
         }
 
         $result = array();
-        $depths = array();
+        $depth  = $nodes[0]['depth'];
 
-        foreach ($nodes as $key => $value) {
-            // detect if depth as increased to include into parent children
+        foreach ($nodes as $node) {
             // XXX
-            if (0 === $value['depth']) {
-                $result[$key] = $value;
-                $depths[$value['depth'] + 1] = $key;
-            } else {
-                $parent = &$result;
-                for ($i = 0; $i < $value['depth']; $i++) {
-                    $parent = &$parent[$depths[$i]];
+            // make a temporary array where $key is $depth XXX
+            if ($depth < $node['depth']) {
+                // higher level, can only be one more
+            } elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
+                // same level
+            } elseif ($depth > $node['depth']) {
+                for ($i = 0; $i < ($depth - $node['depth']); $i++) {
+                    // lower level, but how much lower?
                 }
-
-                $parent[$key] = $value;
-                $depths[$value['depth'] + 1] = $key;
             }
+
+            // update current level
+            $depth = $node['depth'];
         }
 
         return $result;
@@ -574,19 +588,23 @@ class Nextcode_Model_NestedSet
      *
      * @return string
      */
-    public function toHtml($method = 'list')
+    public function toHtml($tree, $method = 'list')
     {
-        $nodes = $this->_getAll();
+        if (empty($tree) || !is_array($tree)) {
+            $nodes = $this->_getAll();
+        } else {
+            $nodes = $tree;
+        }
 
         if ($method == 'list') {
             $result = "<ul>\n";
-            $depth = 0;
+            $depth  = $nodes[0]['depth'];
 
             foreach ($nodes as $node) {
 
                 if ($depth < $node['depth']) {
                     $result .= "\n<ul>\n";
-                } elseif ($depth == $node['depth'] && $depth > 0) {
+                } elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
                     $result .= "</li>\n";
                 } elseif ($depth > $node['depth']) {
                     for ($i = 0; $i < ($depth - $node['depth']); $i++) {
@@ -594,34 +612,32 @@ class Nextcode_Model_NestedSet
                     }
                 }
 
-                $result .= "<li>{$node['name']} (id: {$node['id']})";
+                $result .= "<li>{$node[$this->_structure['name']]} (id: {$node[$this->_structure['id']]} left: {$node[$this->_structure['left']]} right: {$node[$this->_structure['right']]})";
 
                 $depth = $node['depth'];
             }
 
             $result .= "</li></ul>\n";
+            $result .= "</ul>\n";
 
+            /** XXX include into test
+             *
+            $ulStart = substr_count($result, '<ul>');
+            $ulEnd   = substr_count($result, '</ul>');
+            $liStart = substr_count($result, '<li>');
+            $liEnd   = substr_count($result, '</li>');
+
+            if ($ulStart != $ulEnd) {
+                echo "Bad count of <ul> ($ulStart/$ulEnd)";
+            }
+
+            if ($liStart != $liEnd) {
+                echo "Bad count of <li> ($liStart/$liEnd)";
+            }
+             */
+
+            return $result;
         }
-
-        $result .= "</ul>\n";
-
-        /** XXX include into test
-         *
-        $ulStart = substr_count($result, '<ul>');
-        $ulEnd   = substr_count($result, '</ul>');
-        $liStart = substr_count($result, '<li>');
-        $liEnd   = substr_count($result, '</li>');
-
-        if ($ulStart != $ulEnd) {
-            echo "Bad count of <ul> ($ulStart/$ulEnd)";
-        }
-
-        if ($liStart != $liEnd) {
-            echo "Bad count of <li> ($liStart/$liEnd)";
-        }
-         */
-
-        return $result;
     }
 
     /**
@@ -636,6 +652,7 @@ class Nextcode_Model_NestedSet
 
     /**
      * Get one element with its children.
+     * @TODO depth
      *
      * @param $elementId|int    Element Id
      * @param $depth|int        Optional, depth of the tree. Default null means
@@ -645,6 +662,7 @@ class Nextcode_Model_NestedSet
      */
     private function _getElement($elementId, $depth = null)
     {
+        // @TODO: test -> if multiple elements with depth 1 are found -> error
         $db        = $this->_db;
         $elementId = (int) $elementId;
 
@@ -662,14 +680,16 @@ class Nextcode_Model_NestedSet
             SELECT
                 node.{$this->_structure['id']},
                 node.{$this->_structure['name']},
+                node.{$this->_structure['left']},
+                node.{$this->_structure['right']},
                 COUNT(parent.{$this->_structure['name']}) - 1 AS depth
-            FROM
+              FROM
                 {$this->_tableName} AS node,
                 {$this->_tableName} AS parent
-            WHERE node.{$this->_structure['left']} BETWEEN parent.{$this->_structure['left']} AND parent.{$this->_structure['right']}
-              AND node.{$this->_structure['left']} BETWEEN {$element[$this->_structure['left']]} AND {$element[$this->_structure['right']]}
-            GROUP BY node.{$this->_structure['id']}, node.{$this->_structure['name']}, node.{$this->_structure['left']}
-            ORDER BY node.{$this->_structure['left']} $order;
+             WHERE node.{$this->_structure['left']} BETWEEN parent.{$this->_structure['left']} AND parent.{$this->_structure['right']}
+               AND node.{$this->_structure['left']} BETWEEN {$element[$this->_structure['left']]} AND {$element[$this->_structure['right']]}
+             GROUP BY node.{$this->_structure['id']}, node.{$this->_structure['name']}, node.{$this->_structure['left']}, node.{$this->_structure['right']}
+             ORDER BY node.{$this->_structure['left']} $order
         ";
 
         $stmt  = $this->_db->query($query);
@@ -709,7 +729,6 @@ class Nextcode_Model_NestedSet
 
         return $path;
     }
-
 
     /**
      * Get the parent of an element.
