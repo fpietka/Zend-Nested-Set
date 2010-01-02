@@ -516,24 +516,41 @@ class Nextcode_Model_NestedSet
             $nodes = $tree;
         }
 
-        $result = array();
-        $depth  = $nodes[0]['depth'];
+        $result     = array();
+        $stackLevel = 0;
 
-        foreach ($nodes as $node) {
-            // XXX
-            // make a temporary array where $key is $depth XXX
-            if ($depth < $node['depth']) {
-                // higher level, can only be one more
-            } elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
-                // same level
-            } elseif ($depth > $node['depth']) {
-                for ($i = 0; $i < ($depth - $node['depth']); $i++) {
-                    // lower level, but how much lower?
+        if (count($nodes) > 0) {
+            // Node Stack. Used to help building the hierarchy
+            $stack = array();
+
+            foreach ($nodes as $node) {
+                $node['children'] = array();
+
+                // Number of stack items
+                $stackLevel = count($stack);
+
+                // Check if we're dealing with different levels
+                while ($stackLevel > 0 && $stack[$stackLevel - 1]['depth'] >= $node['depth']) {
+                    array_pop($stack);
+                    $stackLevel--;
+                }
+
+                // Stack is empty (we are inspecting the root)
+                if ($stackLevel == 0) {
+                    // Assigning the root node
+                    $i = count($result);
+
+                    // $result[$i] = $item;
+                    $result[$i] = $node;
+                    $stack[] =& $result[$i];
+                } else {
+                    // Add node to parent
+                    $i = count($stack[$stackLevel - 1]['children']);
+
+                    $stack[$stackLevel - 1]['children'][$i] = $node;
+                    $stack[] =& $stack[$stackLevel - 1]['children'][$i];
                 }
             }
-
-            // update current level
-            $depth = $node['depth'];
         }
 
         return $result;
@@ -578,6 +595,21 @@ class Nextcode_Model_NestedSet
         $root = $xml->appendChild($root);
 
         return $xml;
+    }
+
+    /**
+     * Return nested set as JSON
+     *
+     * @params $tree|array          Original 'flat' nested tree
+     *
+     * @return string
+     */
+    public function toJson($tree)
+    {
+        $nestedArray = $this->toArray($tree);
+        $result      = json_encode($nestedArray);
+
+        return $result;
     }
 
     /**
@@ -797,12 +829,12 @@ class Nextcode_Model_NestedSet
      * will sort up to this depth, default being sorting all depth from this
      * parent element.
      *
-     * @param $parent|int   ID of the parent element.
-     * @param $depth|int    Depth of the sorting action.
+     * @param $elementId|int    ID of the element to sort
+     * @param $depth|int        Depth of the sorting action
      *
      * @return $this
      */
-    public function sort($parent = null, $depth = null)
+    public function sortElement($elementId = null, $depth = null)
     {
         // @todo
     }
