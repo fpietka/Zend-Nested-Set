@@ -33,8 +33,10 @@ date_default_timezone_set('GMT');
 //---------------------------------------------------------------------------
 // Define usefull paths
 
-define('ZF_PATH', '/var/www/lib/zf-1.9.2');
+define('ZF_PATH', '/home/hthetiot/src/ZendFramework-git/');
 define('BASE_PATH', realpath(dirname(__FILE__) . '/..'));
+define('SQL_PATH', BASE_PATH . '/sql');
+define('TMP_PATH', sys_get_temp_dir());
 
 //---------------------------------------------------------------------------
 // file inclusion & autoload

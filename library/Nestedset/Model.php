@@ -29,7 +29,7 @@
  * Powered by Nextcode, 2009
  */
 
-class Nextcode_Model_NestedSet
+class NestedSet_Model
 {
     /**
      * In MySQL and PostgreSQL, 'left' and 'right' are reserved words
@@ -215,9 +215,11 @@ class Nextcode_Model_NestedSet
                 $stmt = $db->query("
                     UPDATE {$this->_tableName}
                        SET {$this->_structure['right']} = {$this->_structure['right']} + 2
-                     WHERE {$this->_structure['id']} = $reference;
+                       WHERE {$this->_structure['id']} =:reference;
                 ");
-                $update = $stmt->fetch();
+                $update = $stmt->fetch(array(
+                    'reference' => $reference,
+                ));
 
                 // insert new element
                 $values = array(
