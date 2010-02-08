@@ -11,19 +11,21 @@
  *  - add()
  *  - delete()
  *  - move()
+ *
  * methods to get results:
  * - getAll()
  * - getLeafs()
+ *
  * methods to get those result to a specific output:
  * - toArray()
- * - toCsv()
  * - toXml()
  * - toJson()
+ * - toCsv()
  *
  * Hierarchical data are handled as an array with depth information, but is
  * never outputed that way.
  *
- * @version 0.4
+ * @version 0.5
  * @author  François Pietka (fpietka)
  *
  * Powered by Nextcode, 2009
@@ -797,6 +799,20 @@ class Nextcode_Model_NestedSet
         return $result;
     }
 
+    /**
+     * Returns the number of descendant of an element.
+     *
+     * @params $elementId|int   ID of the element
+     *
+     * @return int
+     */
+    public function numberOfDescendant($elementId)
+    {
+        $width = $this->_getNodeWidth($elementId);
+        $result = ($width - 2) / 2;
+
+        return $result;
+    }
     /**
      * Returns all children of an element. Default is direct children
      *
