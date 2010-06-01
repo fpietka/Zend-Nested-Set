@@ -2,7 +2,6 @@
 /**
  * $Id$
  *
- * @description@
  * This object is a pattern to store hieriarchical data into a SQL database.
  *
  * The objective is to make it easier to get a full or partial tree from the database
@@ -15,6 +14,13 @@
  * methods to get results:
  * - getAll()
  * - getLeafs()
+ * - getChildren()
+ *
+ * methods to get state of elements:
+ * - hasChildren()
+ * - isRoot()
+ * - getLevel()
+ * - numberOfDescendant()
  *
  * methods to get those result to a specific output:
  * - toArray()
@@ -36,7 +42,7 @@ class NestedSet_Model
     /**
      * In MySQL and PostgreSQL, 'left' and 'right' are reserved words
      *
-     * This represent table structure
+     * This represent the default table structure
      */
     private $_structure = array(
         'id'    => 'id',
@@ -59,8 +65,27 @@ class NestedSet_Model
     private $_db;
     private $_tableName;
 
+    /**
+     * Initialize model with DbTable informations.
+     *
+     */
     public function __construct()
     {
+        try {
+            $db = $this->getDbTable()->getAdapter();
+            $this->setDb($db);
+        }
+        catch (Exception $e) {
+            throw new Exception('Cannot set DB adapter: ' . $e->getMessage());
+        }
+
+        try {
+            $table = $this->getDbTable()->info();
+            $this->setTableName($table['name']);
+        }
+        catch (Exception $e) {
+            throw new Exception('Cannot set table name: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -157,7 +182,8 @@ class NestedSet_Model
 
             if (false === $result) {
                 $result = 0;
-            } else {
+            }
+            else {
                 $result = $result['max'];
             }
 
@@ -176,11 +202,13 @@ class NestedSet_Model
 
                 $db->insert($this->_tableName, $values);
                 $db->commit();
-            } catch (Exception $e) {
+            }
+            catch (Exception $e) {
                 $db->rollBack();
                 throw new Exception($e->getMessage());
             }
-        } else {
+        }
+        else {
             $reference = (int) $reference;
             // case INTO
 
@@ -217,11 +245,11 @@ class NestedSet_Model
                 $stmt = $db->query("
                     UPDATE {$this->_tableName}
                        SET {$this->_structure['right']} = {$this->_structure['right']} + 2
-                       WHERE {$this->_structure['id']} =:reference;
-                ");
-                $update = $stmt->fetch(array(
+                     WHERE {$this->_structure['id']} = :reference;
+                ", array(
                     'reference' => $reference,
                 ));
+                $update = $stmt->fetch();
 
                 // insert new element
                 $values = array(
@@ -232,7 +260,8 @@ class NestedSet_Model
 
                 $db->insert($this->_tableName, $values);
                 $db->commit();
-            } catch (Exception $e) {
+            }
+            catch (Exception $e) {
                 $db->rollBack();
                 throw new Exception($e->getMessage());
             }
@@ -298,7 +327,8 @@ class NestedSet_Model
             $update = $stmt->fetch();
 
             $db->commit();
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $db->rollBack();
             throw new Exception($e->getMessage());
         }
@@ -393,7 +423,8 @@ class NestedSet_Model
             $update = $stmt->fetch();
 
             $db->commit();
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $db->rollBack();
             throw new Exception($e->getMessage());
         }
@@ -476,12 +507,14 @@ class NestedSet_Model
 
                 if ($mode == 'exclude') {
                     $mode = '=';
-                } else {
+                }
+                else {
                     $mode = '!=';
                 }
 
                 $query .= "HAVING COUNT(parent.{$this->_structure['name']}) - 1 $mode $depth";
-            } else {
+            }
+            else {
                 foreach ($depth as &$one) {
                     $one = (int) $one;
                 }
@@ -489,7 +522,8 @@ class NestedSet_Model
 
                 if ($mode == 'exclude') {
                     $mode = 'NOT IN';
-                } else {
+                }
+                else {
                     $mode = 'IN';
                 }
 
@@ -516,7 +550,8 @@ class NestedSet_Model
     {
         if (empty($tree) || !is_array($tree)) {
             $nodes = $this->_getAll();
-        } else {
+        }
+        else {
             $nodes = $tree;
         }
 
@@ -547,7 +582,8 @@ class NestedSet_Model
                     // $result[$i] = $item;
                     $result[$i] = $node;
                     $stack[] =& $result[$i];
-                } else {
+                }
+                else {
                     // Add node to parent
                     $i = count($stack[$stackLevel - 1]['children']);
 
@@ -562,43 +598,57 @@ class NestedSet_Model
 
     /**
      * Convert a tree array (with depth) into a hierarchical XML string.
-     * XXX work in progress
      *
      * @param $tree|array   Array with depth value.
      *
      * @return string
      */
-    public function toXml($tree)
+    public function toXml($tree = null)
     {
         if (empty($tree) || !is_array($tree)) {
             $nodes = $this->_getAll();
-        } else {
+        }
+        else {
             $nodes = $tree;
         }
 
         $xml  = new DomDocument('1.0');
-        $root = $xml->createElement('nested set');
+        $xml->formatOutput = true;
+        $root = $xml->createElement('root');
+        $xml->appendChild($root);
 
-        $depths = array();
+        $depth = 0;
+        $currentChildren = array();
 
-        foreach ($nodes as $key => $value) {
-            if (0 === $value['depth']) {
-                $element = $root->createElement($value);
-                $depths[$value['depth'] + 1] = $key;
-            } else {
-                $parent = &$result;
-                for ($i = 0; $i < $value['depth']; $i++) {
-                    $parent = &$parent[$depths[$i]];
-                }
+        foreach ($nodes as $node) {
+            $element = $xml->createElement('element');
+            $element->setAttribute('id', $node['id']);
+            $element->setAttribute('name', $node['name']);
+            $element->setAttribute('lft', $node['lft']);
+            $element->setAttribute('rgt', $node['rgt']);
 
-                $parent[$key] = $value;
-                $depths[$value['depth'] + 1] = $key;
+            $children = $xml->createElement('children');
+            $element->appendChild($children);
+
+            if ($node['depth'] == 0) {
+                // Handle root
+                $root->appendChild($element);
+                $currentChildren[0] = $children;
             }
+            elseif ($node['depth'] > $depth) {
+                // is a new sub level
+                $currentChildren[$depth]->appendChild($element);
+                $currentChildren[$node['depth']] = $children;
+            }
+            elseif ($node['depth'] == $depth || $node['depth'] < $depth) {
+                // is at the same level
+                $currentChildren[$node['depth'] - 1]->appendChild($element);
+            }
+
+            $depth = $node['depth'];
         }
 
-        $root = $xml->appendChild($root);
-
-        return $xml;
+        return $xml->saveXML();
     }
 
     /**
@@ -628,7 +678,8 @@ class NestedSet_Model
     {
         if (empty($tree) || !is_array($tree)) {
             $nodes = $this->_getAll();
-        } else {
+        }
+        else {
             $nodes = $tree;
         }
 
@@ -640,14 +691,18 @@ class NestedSet_Model
 
                 if ($depth < $node['depth']) {
                     $result .= "\n<ul>\n";
-                } elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
+                }
+                elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
                     $result .= "</li>\n";
-                } elseif ($depth > $node['depth']) {
+                }
+                elseif ($depth > $node['depth']) {
                     for ($i = 0; $i < ($depth - $node['depth']); $i++) {
                         $result .= "</li></ul>\n";
                     }
                 }
 
+                // XXX Currently it outputs results according to my actual needs
+                // for testing purpose.
                 $result .= "<li>{$node[$this->_structure['name']]} (id: {$node[$this->_structure['id']]} left: {$node[$this->_structure['left']]} right: {$node[$this->_structure['right']]})";
 
                 $depth = $node['depth'];
@@ -815,11 +870,12 @@ class NestedSet_Model
 
         return $result;
     }
+
     /**
      * Returns all children of an element. Default is direct children
      *
      * @param $elementId|int    Element ID
-     * @param $level|int        Level of children to return
+     * @param $level|int        Level of children to return, level 1 mean direct
      *
      * @return array
      */
@@ -827,6 +883,7 @@ class NestedSet_Model
     {
         // @todo
         // use getElement excluding main one
+        // might look like getAll
     }
 
     /**
@@ -839,6 +896,43 @@ class NestedSet_Model
     public function getLevel($level)
     {
         // @todo
+    }
+
+    /**
+     * Returns if the element is root.
+     *
+     * @param $elementId|int    Element ID
+     *
+     * @return boolean
+     */
+    public function isRoot($elementId)
+    {
+        $db        = $this->_db;
+        $elementId = (int) $elementId;
+
+        $query = "
+            SELECT TRUE
+              FROM {$this->_tableName}
+             WHERE {$this->_structure['id']} = $elementId
+               AND {$this->_structure['left']} = (
+                       SELECT MIN({$this->_structure['left']})
+                       FROM {$this->_tableName}
+                   )
+               AND {$this->_structure['right']} = (
+                       SELECT MAX({$this->_structure['right']})
+                         FROM {$this->_tableName}
+                   );
+        ";
+
+        try {
+            $stmt   = $this->_db->query($query);
+            $result = $stmt->fetchColumn();
+        }
+        catch (Exception $e) {
+            return false;
+        }
+
+        return $result;
     }
 
     /**
@@ -857,3 +951,4 @@ class NestedSet_Model
         // @todo
     }
 }
+
