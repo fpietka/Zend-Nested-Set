@@ -10,14 +10,15 @@ can get it from one of the following sources:
   * Official Release:
     http://framework.zend.com/dowload/latest
 
-  * Using Subversion; use either the current trunk or the 1.9.2 release branch:
+  * Using Subversion; use either the current trunk or the 1.10.2 release branch:
     svn co http://framework.zend.com/svn/framework/standard/trunk/library/Zend
-    svn co http://framework.zend.com/svn/framework/standard/branches/release-1.9.2/library/Zend
+    svn co
+    http://framework.zend.com/svn/framework/standard/branches/release-1.10.2/library/Zend
 
-  * Using Git; use either the current trunk or the 1.9.2 release branch:
+  * Using Git; use either the current trunk or the 1.10.2 release branch:
     git clone http://tjohns.net/git/zf.git
     git fetch
-    git checkout --track -b release-1.9.2 origin/tags/release-1.9.2
+    git checkout --track -b release-1.10.2 origin/tags/release-1.10.2
 
 DEPENDENCY
 =======================================================================
@@ -47,6 +48,7 @@ REQUESTS
 If you have any feature requests, feel free to send them to:
 
     François Pietka
+    francois [at] nextcode [dot] fr
 
 I may or may not honor them. :)
 
