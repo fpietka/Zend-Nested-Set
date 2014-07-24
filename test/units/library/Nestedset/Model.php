@@ -12,13 +12,56 @@ require_once 'Zend/Db.php';
 require_once 'Zend/Db/Table.php';
 require_once 'Zend/Db/Adapter/Abstract.php';
 
-$options = array('dbname' => 'test');
-$db = \Zend_Db::factory('PDO_SQLITE', $options);
-
 use mageekguy\atoum;
 
 class NestedSet_Model extends atoum\test
 {
+    public function setUp()
+    {
+        $dbh = new \PDO('sqlite:test/test.db');
+        $dbh->query('
+            CREATE TABLE nested (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                lft INT,
+                rgt INT
+            )
+        ');
+
+        // Closing connection
+        $dbh = null;
+    }
+
+    public function afterTestMethod($method)
+    {
+        $dbh = new \PDO('sqlite:test/test.db');
+        $dbh->query('DROP TABLE nested');
+        $dbh->query('
+            CREATE TABLE nested (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                lft INT,
+                rgt INT
+            )
+        ');
+
+        // Closing connection
+        $dbh = null;
+    }
+
+    public function tearDown()
+    {
+        $dbh = new \PDO('sqlite:test/test.db');
+        $dbh->query('DROP TABLE nested');
+
+        // Closing connection
+        $dbh = null;
+    }
+
+    /**
+     * Test setters
+     */
+
     public function testSetTableName()
     {
         $nestedset = new \NestedSet_Model();
