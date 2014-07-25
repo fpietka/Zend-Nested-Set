@@ -74,7 +74,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'dbtest'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
         $nestedset->setDb($db);
         $this->assert->object($nestedset->getDb())
             ->isInstanceOf('\Zend_Db_Adapter_Abstract');
