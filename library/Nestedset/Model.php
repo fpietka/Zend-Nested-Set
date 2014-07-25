@@ -922,7 +922,7 @@ class NestedSet_Model
         $elementId = (int) $elementId;
 
         $query = "
-            SELECT TRUE
+            SELECT 1
               FROM {$this->_tableName}
              WHERE {$this->_structure['id']} = $elementId
                AND {$this->_structure['left']} = (
@@ -943,7 +943,7 @@ class NestedSet_Model
             return false;
         }
 
-        return $result;
+        return (boolean) $result;
     }
 
     /**
