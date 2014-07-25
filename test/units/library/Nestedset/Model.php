@@ -115,4 +115,77 @@ class NestedSet_Model extends atoum\test
         $this->assert->string($nestedset->getStructureRight())
             ->isEqualTo('foo');
     }
+
+    public function testAddASimpleElement()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+
+        $expected_result = '[{"id":"1","name":"foo","lft":"1","rgt":"2","depth":"0","children":[]}]';
+
+        $this->assert->string($nestedset->toJson($nestedset->getElement(1)))->isEqualTo($expected_result);
+    }
+
+    public function testDeleteElement()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->delete(1);
+
+        $expected_result = '[]';
+
+        $this->assert->string($nestedset->toJson())->isEqualTo($expected_result);
+    }
+
+    public function testGetElement()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+
+        $expected_result = '[{"id":"1","name":"foo","lft":"1","rgt":"2","depth":"0","children":[]}]';
+
+        $this->assert->string($nestedset->toJson())->isEqualTo($expected_result);
+    }
+
+    public function testIsRoot()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+
+        $this->assert->boolean($nestedset->isRoot(1))->isTrue();
+    }
+
+    public function testIsNotRoot()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar');
+
+        $this->assert->boolean($nestedset->isRoot(1))->isFalse();
+    }
 }
