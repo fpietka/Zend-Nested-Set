@@ -18,8 +18,8 @@ class NestedSet_Model extends atoum\test
 {
     public function setUp()
     {
-        $dbh = new \PDO('sqlite:test/test.db');
-        $dbh->query('
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db->query('
             CREATE TABLE nested (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
@@ -27,35 +27,34 @@ class NestedSet_Model extends atoum\test
                 rgt INT
             )
         ');
-
-        // Closing connection
-        $dbh = null;
     }
 
     public function afterTestMethod($method)
     {
-        $dbh = new \PDO('sqlite:test/test.db');
-        $dbh->query('DROP TABLE nested');
-        $dbh->query('
-            CREATE TABLE nested (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                lft INT,
-                rgt INT
-            )
-        ');
-
-        // Closing connection
-        $dbh = null;
+        switch ($method)
+        {
+            case 'testAddASimpleElement':
+            case 'testDeleteElement':
+            case 'testGetElement':
+            case 'testIsRoot':
+            case 'testGetLevel':
+                $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+                $db->query('DROP TABLE nested');
+                $db->query('
+                    CREATE TABLE nested (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT,
+                        lft INT,
+                        rgt INT
+                    )
+                ');
+        }
     }
 
     public function tearDown()
     {
-        $dbh = new \PDO('sqlite:test/test.db');
-        $dbh->query('DROP TABLE nested');
-
-        // Closing connection
-        $dbh = null;
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db->query('DROP TABLE nested');
     }
 
     /**
