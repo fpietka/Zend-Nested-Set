@@ -83,6 +83,11 @@ class NestedSet_Model
         return $this;
     }
 
+    public function getTableName()
+    {
+        return $this->_tableName;
+    }
+
     /**
      * @param $db|Zend_Db_Adapter
      *
@@ -93,6 +98,11 @@ class NestedSet_Model
         $this->_db = $db;
 
         return $this;
+    }
+
+    public function getDb()
+    {
+        return $this->_db;
     }
 
     /**
@@ -106,6 +116,11 @@ class NestedSet_Model
         return $this;
     }
 
+    public function getStructureId()
+    {
+        return $this->_structure['id'];
+    }
+
     /**
      * @param $fieldName
      *
@@ -115,6 +130,11 @@ class NestedSet_Model
     {
         $this->_structure['name'] = (string) $fieldName;
         return $this;
+    }
+
+    public function getStructureName()
+    {
+        return $this->_structure['name'];
     }
 
     /**
@@ -128,6 +148,11 @@ class NestedSet_Model
         return $this;
     }
 
+    public function getStructureLeft()
+    {
+        return $this->_structure['left'];
+    }
+
     /**
      * @param $fieldName
      *
@@ -137,6 +162,11 @@ class NestedSet_Model
     {
         $this->_structure['right'] = (string) $fieldName;
         return $this;
+    }
+
+    public function getStructureRight()
+    {
+        return $this->_structure['right'];
     }
 
     /**
