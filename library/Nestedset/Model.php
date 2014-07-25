@@ -93,7 +93,7 @@ class NestedSet_Model
      *
      * @return $this
      */
-    public function setDb($db)
+    public function setDb(Zend_Db_Adapter_Abstract $db)
     {
         $this->_db = $db;
 
