@@ -762,7 +762,7 @@ class NestedSet_Model
      *
      * @return array
      */
-    private function _getElement($elementId, $depth = null)
+    private function _getElement($elementId, $depth = null, $order = 'ASC')
     {
         // @TODO: test -> if multiple elements with depth 1 are found -> error
         $db        = $this->_db;
@@ -807,7 +807,7 @@ class NestedSet_Model
      *
      * @return array
      */
-    public function getPath($elementId)
+    public function getPath($elementId, $order = 'ASC')
     {
         $db        = $this->_db;
         $elementId = (int) $elementId;
