@@ -557,7 +557,7 @@ class NestedSet_Model
      *
      * @return array
      */
-    public function toArray($tree)
+    public function toArray($tree = null)
     {
         if (empty($tree) || !is_array($tree)) {
             $nodes = $this->_getAll();
@@ -669,7 +669,7 @@ class NestedSet_Model
      *
      * @return string
      */
-    public function toJson($tree)
+    public function toJson($tree = null)
     {
         $nestedArray = $this->toArray($tree);
         $result      = json_encode($nestedArray);
@@ -685,7 +685,7 @@ class NestedSet_Model
      *
      * @return string
      */
-    public function toHtml($tree, $method = 'list')
+    public function toHtml($tree = null, $method = 'list')
     {
         if (empty($tree) || !is_array($tree)) {
             $nodes = $this->_getAll();
