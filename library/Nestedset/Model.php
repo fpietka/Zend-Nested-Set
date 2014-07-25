@@ -935,13 +935,8 @@ class NestedSet_Model
                    )
         ";
 
-        try {
-            $stmt   = $this->_db->query($query);
-            $result = $stmt->fetchColumn();
-        }
-        catch (Exception $e) {
-            return false;
-        }
+        $stmt   = $this->_db->query($query);
+        $result = $stmt->fetchColumn();
 
         return (boolean) $result;
     }
