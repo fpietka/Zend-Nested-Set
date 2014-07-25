@@ -186,7 +186,7 @@ class NestedSet_Model
         if (is_null($reference)) {
             // In this case, add it to the end of the set at first level
             $select = $db->select();
-            $select->from($this->_tableName, "MAX({$this->_structure['right']})");
+            $select->from($this->_tableName, array('max' => "MAX({$this->_structure['right']})"));
 
             $stmt   = $db->query($select);
             $result = $stmt->fetch();
