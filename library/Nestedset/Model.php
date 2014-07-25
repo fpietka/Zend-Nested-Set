@@ -932,7 +932,7 @@ class NestedSet_Model
                AND {$this->_structure['right']} = (
                        SELECT MAX({$this->_structure['right']})
                          FROM {$this->_tableName}
-                   );
+                   )
         ";
 
         try {
