@@ -8,17 +8,15 @@ into the library directory. If you do not yet have Zend Framework, you
 can get it from one of the following sources:
 
   * Official Release:
-    http://framework.zend.com/dowload/latest
+    http://framework.zend.com/downloads/latest#ZF1
 
-  * Using Subversion; use either the current trunk or the 1.10.2 release branch:
+  * Using Subversion; use either the current trunk or the 1.12.7 release branch:
     svn co http://framework.zend.com/svn/framework/standard/trunk/library/Zend
-    svn co
-    http://framework.zend.com/svn/framework/standard/branches/release-1.10.2/library/Zend
+    svn co http://framework.zend.com/svn/framework/standard/branches/release-1.12/library/Zend
 
-  * Using Git; use either the current trunk or the 1.10.2 release branch:
-    git clone http://tjohns.net/git/zf.git
-    git fetch
-    git checkout --track -b release-1.10.2 origin/tags/release-1.10.2
+  * Using Git; use either the current master or the 1.12.7 release branch:
+    git clone https://github.com/zendframework/zf1
+    git checkout release-1.12.7
 
 DEPENDENCY
 =======================================================================
