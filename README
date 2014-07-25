@@ -22,13 +22,7 @@ DEPENDENCY
 =======================================================================
 
 PHP Package
-    php5 php-pear php5-mysqli php5-pgsql php5-curl php5-xmlrpc php5-json
-
-PHP PEAR Modules (pear channel-discover pear.phpunit.de)
-    PHP_CodeSniffer phpunit/PHPUnit phpunit/phpcpd phpunit/phploc
-
-Documentation Generation (useless in production)
-    doxygen graphviz
+    php5 php-pear php5-sqlite php5-curl php5-xmlrpc php5-json
 
 
 DOCUMENTATION
