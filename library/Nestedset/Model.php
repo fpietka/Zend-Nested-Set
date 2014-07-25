@@ -65,27 +65,8 @@ class NestedSet_Model
     private $_db;
     private $_tableName;
 
-    /**
-     * Initialize model with DbTable informations.
-     *
-     */
     public function __construct()
     {
-        try {
-            $db = $this->getDbTable()->getAdapter();
-            $this->setDb($db);
-        }
-        catch (Exception $e) {
-            throw new Exception('Cannot set DB adapter: ' . $e->getMessage());
-        }
-
-        try {
-            $table = $this->getDbTable()->info();
-            $this->setTableName($table['name']);
-        }
-        catch (Exception $e) {
-            throw new Exception('Cannot set table name: ' . $e->getMessage());
-        }
     }
 
     /**
