@@ -37,7 +37,14 @@ class NestedSet_Model extends atoum\test
             case 'testDeleteElement':
             case 'testGetElement':
             case 'testIsRoot':
+            case 'testIsNotRoot':
             case 'testGetLevel':
+            case 'testGetLeafs':
+            case 'testGetPath':
+            case 'testMove':
+            case 'testToXml':
+            case 'testToHtml':
+            case 'testNumberOfDescendant':
                 $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
                 $db->query('DROP TABLE nested');
                 $db->query('
@@ -187,5 +194,124 @@ class NestedSet_Model extends atoum\test
         $nestedset->add('bar');
 
         $this->assert->boolean($nestedset->isRoot(1))->isFalse();
+    }
+
+    public function testGetLeafs()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+
+        $expected_result = array(
+            array(
+                'name' => 'bar',
+                'id' => '2',
+            )
+        );
+
+        $this->assert->array($nestedset->getLeafs())->isEqualTo($expected_result);
+    }
+
+    public function testMove()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar');
+
+        $result = $nestedset->move(2, 1);
+        $this->assert->boolean($result)->isTrue();
+
+        $expected_result = '[{"id":"1","name":"foo","lft":"1","rgt":"4","depth":"0","children":[{"id":"2","name":"bar","lft":"2","rgt":"3","depth":"1","children":[]}]}]';
+        $this->assert->string($nestedset->toJson())->isEqualTo($expected_result);
+    }
+
+    public function testGetLevel()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+
+        //$this->assert->integer($nestedset->getLevel(1))->isZero();
+    }
+
+    public function testGetPath()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+
+        $expected_result = array(
+            0 => array(
+                'id' => '2',
+                'name' => 'bar',
+                'depth' => '1'
+            )
+        );
+
+        $this->assert->array($nestedset->getPath(2))->isEqualTo($expected_result);
+    }
+
+    public function testToXml()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+
+        $expected_result = '<?xml version="1.0"?><root><element id="1" name="foo" lft="1" rgt="4"><children><element id="2" name="bar" lft="2" rgt="3"><children/></element></children></element></root>';
+        $xml = new \DomDocument(1.0);
+        $xml->loadXml($expected_result);
+        $this->assert->string($nestedset->toXml())->isEqualTo($xml->saveXML());
+    }
+
+    public function testToHtml()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+
+        $expected_result = '<ul><li>foo (id: 1 left: 1 right: 4)<ul><li>bar (id: 2 left: 2 right: 3)</li></ul></ul>';
+        $this->assert->string($nestedset->toHtml())->isEqualTo($expected_result);
+    }
+
+    public function testNumberOfDescendant()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+        $this->assert->integer($nestedset->numberOfDescendant(1))->isEqualTo(1);
     }
 }
