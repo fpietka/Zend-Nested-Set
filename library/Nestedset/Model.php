@@ -457,7 +457,7 @@ class NestedSet_Model
         $stmt = $db->query("
             SELECT {$this->_structure['right']} - {$this->_structure['left']} + 1
               FROM {$this->_tableName}
-             WHERE {$this->_structure['id']} = $elementId;
+             WHERE {$this->_structure['id']} = $elementId
         ");
         $width = $stmt->fetchColumn();
 
