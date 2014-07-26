@@ -624,7 +624,7 @@ class NestedSet_Model
         }
 
         $xml  = new DomDocument('1.0');
-        $xml->formatOutput = true;
+        $xml->preserveWhiteSpace = false;
         $root = $xml->createElement('root');
         $xml->appendChild($root);
 
