@@ -695,20 +695,20 @@ class NestedSet_Model
         }
 
         if ($method == 'list') {
-            $result = "<ul>\n";
+            $result = "<ul>";
             $depth  = $nodes[0]['depth'];
 
             foreach ($nodes as $node) {
 
                 if ($depth < $node['depth']) {
-                    $result .= "\n<ul>\n";
+                    $result .= "<ul>";
                 }
                 elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
-                    $result .= "</li>\n";
+                    $result .= "</li>";
                 }
                 elseif ($depth > $node['depth']) {
                     for ($i = 0; $i < ($depth - $node['depth']); $i++) {
-                        $result .= "</li></ul>\n";
+                        $result .= "</li></ul>";
                     }
                 }
 
@@ -719,8 +719,6 @@ class NestedSet_Model
                 $depth = $node['depth'];
             }
 
-            $result .= "</li></ul>\n";
-            $result .= "</ul>\n";
 
             /** XXX include into test
              *
@@ -737,6 +735,8 @@ class NestedSet_Model
                 echo "Bad count of <li> ($liStart/$liEnd)";
             }
              */
+            $result .= "</li></ul>";
+            $result .= "</ul>";
 
             return $result;
         }
