@@ -43,6 +43,7 @@ class NestedSet_Model extends atoum\test
             case 'testGetPath':
             case 'testMove':
             case 'testToXml':
+            case 'testToXmlWithTree':
             case 'testToHtml':
             case 'testNumberOfDescendant':
                 $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
@@ -287,6 +288,24 @@ class NestedSet_Model extends atoum\test
         $xml = new \DomDocument(1.0);
         $xml->load('test/expected_result.xml');
         $this->assert->string($nestedset->toXml())->isEqualTo($xml->saveXML());
+    }
+
+    public function testToXmlWithTree()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+        $nestedset->add('foobar', 1);
+        $tree = $nestedset->getElement(1);
+
+        $xml = new \DomDocument(1.0);
+        $xml->load('test/expected_result.xml');
+        $this->assert->string($nestedset->toXml($tree))->isEqualTo($xml->saveXML());
     }
 
     public function testToHtml()
