@@ -1,0 +1,1 @@
+[{"id":"1","name":"foo","lft":"1","rgt":"6","depth":"0","children":[{"id":"2","name":"bar","lft":"2","rgt":"3","depth":"1","children":[]},{"id":"3","name":"foobar","lft":"4","rgt":"5","depth":"1","children":[]}]}]

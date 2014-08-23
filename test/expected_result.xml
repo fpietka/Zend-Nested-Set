@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<root><element id="1" name="foo" lft="1" rgt="6"><children><element id="2" name="bar" lft="2" rgt="3"><children/></element><element id="3" name="foobar" lft="4" rgt="5"><children/></element></children></element></root>
