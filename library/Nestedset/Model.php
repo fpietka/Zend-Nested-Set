@@ -722,22 +722,6 @@ class NestedSet_Model
             $result .= "</li></ul>";
             $result .= "</ul>";
 
-            /** XXX include into test
-             *
-            $ulStart = substr_count($result, '<ul>');
-            $ulEnd   = substr_count($result, '</ul>');
-            $liStart = substr_count($result, '<li>');
-            $liEnd   = substr_count($result, '</li>');
-
-            if ($ulStart != $ulEnd) {
-                echo "Bad count of <ul> ($ulStart/$ulEnd)";
-            }
-
-            if ($liStart != $liEnd) {
-                echo "Bad count of <li> ($liStart/$liEnd)";
-            }
-             */
-
             return $result;
         }
     }

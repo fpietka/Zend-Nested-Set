@@ -24,11 +24,14 @@ DEPENDENCY
 PHP Package
     php5 php-pear php5-sqlite php5-curl php5-xmlrpc php5-json
 
+PHAR Package
+    Atoum
 
 DOCUMENTATION
 ======================================================================
 
-@todo
+To lauch unit tests:
+    php mageekguy.atoum.phar -mcn 1 -d test/
 
 FEATURES
 =======================================================================
