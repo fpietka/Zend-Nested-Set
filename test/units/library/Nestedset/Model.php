@@ -132,8 +132,10 @@ class NestedSet_Model extends atoum\test
         $nestedset->setTableName('nested');
 
         $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+        $nestedset->add('foobar', 1);
 
-        $expected_result = '[{"id":"1","name":"foo","lft":"1","rgt":"2","depth":"0","children":[]}]';
+        $expected_result = file_get_contents('test/expected_result.json');
 
         $this->assert->string($nestedset->toJson($nestedset->getElement(1)))->isEqualTo($expected_result);
     }
@@ -280,10 +282,10 @@ class NestedSet_Model extends atoum\test
 
         $nestedset->add('foo');
         $nestedset->add('bar', 1);
+        $nestedset->add('foobar', 1);
 
-        $expected_result = '<?xml version="1.0"?><root><element id="1" name="foo" lft="1" rgt="4"><children><element id="2" name="bar" lft="2" rgt="3"><children/></element></children></element></root>';
         $xml = new \DomDocument(1.0);
-        $xml->loadXml($expected_result);
+        $xml->load('test/expected_result.xml');
         $this->assert->string($nestedset->toXml())->isEqualTo($xml->saveXML());
     }
 
