@@ -941,4 +941,3 @@ class NestedSet_Model
         // @todo
     }
 }
-
