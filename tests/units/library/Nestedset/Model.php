@@ -18,7 +18,7 @@ class NestedSet_Model extends atoum\test
 {
     public function setUp()
     {
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $db->query('
             CREATE TABLE nested (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,7 +46,8 @@ class NestedSet_Model extends atoum\test
             case 'testToXmlWithTree':
             case 'testToHtml':
             case 'testNumberOfDescendant':
-                $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+            case 'testGetParent':
+                $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
                 $db->query('DROP TABLE nested');
                 $db->query('
                     CREATE TABLE nested (
@@ -61,7 +62,7 @@ class NestedSet_Model extends atoum\test
 
     public function tearDown()
     {
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $db->query('DROP TABLE nested');
     }
 
@@ -82,7 +83,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $this->assert->object($nestedset->getDb())
             ->isInstanceOf('\Zend_Db_Adapter_Abstract');
@@ -128,7 +129,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -136,7 +137,7 @@ class NestedSet_Model extends atoum\test
         $nestedset->add('bar', 1);
         $nestedset->add('foobar', 1);
 
-        $expected_result = file_get_contents('test/expected_result.json');
+        $expected_result = file_get_contents('tests/expected_result.json');
 
         $this->assert->string($nestedset->toJson($nestedset->getElement(1)))->isEqualTo($expected_result);
     }
@@ -145,7 +146,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -161,7 +162,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -176,7 +177,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -189,7 +190,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -203,7 +204,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -224,7 +225,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -242,7 +243,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -255,7 +256,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -277,7 +278,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -286,7 +287,7 @@ class NestedSet_Model extends atoum\test
         $nestedset->add('foobar', 1);
 
         $xml = new \DomDocument(1.0);
-        $xml->load('test/expected_result.xml');
+        $xml->load('tests/expected_result.xml');
         $this->assert->string($nestedset->toXml())->isEqualTo($xml->saveXML());
     }
 
@@ -294,7 +295,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -304,7 +305,7 @@ class NestedSet_Model extends atoum\test
         $tree = $nestedset->getElement(1);
 
         $xml = new \DomDocument(1.0);
-        $xml->load('test/expected_result.xml');
+        $xml->load('tests/expected_result.xml');
         $this->assert->string($nestedset->toXml($tree))->isEqualTo($xml->saveXML());
     }
 
@@ -312,7 +313,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -320,7 +321,7 @@ class NestedSet_Model extends atoum\test
         $nestedset->add('bar', 1);
         $nestedset->add('foobar', 1);
 
-        $expected_result = file_get_contents('test/expected_result.html');
+        $expected_result = file_get_contents('tests/expected_result.html');
         $this->assert->string($nestedset->toHtml())->isEqualTo($expected_result);
     }
 
@@ -328,7 +329,7 @@ class NestedSet_Model extends atoum\test
     {
         $nestedset = new \NestedSet_Model();
 
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'test/test.db'));
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
