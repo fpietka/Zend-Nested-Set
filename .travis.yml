@@ -1,0 +1,13 @@
+language: php
+php:
+  - 5.5
+  - 5.4
+  - hhvm
+before_script: wget http://downloads.atoum.org/nightly/mageekguy.atoum.phar
+script:
+  ## Atoum
+  - php mageekguy.atoum.phar -d tests/
+after_script:
+  ## Scrutinizer
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover ./build/logs/clover.xml
