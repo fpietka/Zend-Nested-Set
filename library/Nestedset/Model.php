@@ -50,14 +50,6 @@ class NestedSet_Model
     );
 
     /**
-     * Basic required informations for nested objects
-     */
-    private $_id;
-    private $_name;
-    private $_right;
-    private $_left;
-
-    /**
      * Database informations required to locate/save the set
      */
     private $_db;
