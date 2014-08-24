@@ -318,8 +318,9 @@ class NestedSet_Model extends atoum\test
 
         $nestedset->add('foo');
         $nestedset->add('bar', 1);
+        $nestedset->add('foobar', 1);
 
-        $expected_result = '<ul><li>foo (id: 1 left: 1 right: 4)<ul><li>bar (id: 2 left: 2 right: 3)</li></ul></ul>';
+        $expected_result = file_get_contents('test/expected_result.html');
         $this->assert->string($nestedset->toHtml())->isEqualTo($expected_result);
     }
 
