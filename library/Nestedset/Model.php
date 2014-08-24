@@ -222,7 +222,7 @@ class NestedSet_Model
         }
         catch (Exception $e) {
             $db->rollBack();
-            throw new Exception($e->getMessage());
+            throw $e;
         }
 
         return $this;
@@ -291,7 +291,7 @@ class NestedSet_Model
         }
         catch (Exception $e) {
             $db->rollBack();
-            throw new Exception($e->getMessage());
+            throw $e;
         }
 
         return $this;
@@ -357,7 +357,7 @@ class NestedSet_Model
         }
         catch (Exception $e) {
             $db->rollBack();
-            throw new Exception($e->getMessage());
+            throw $e;
         }
 
         return $this;
@@ -453,7 +453,7 @@ class NestedSet_Model
         }
         catch (Exception $e) {
             $db->rollBack();
-            throw new Exception($e->getMessage());
+            throw $e;
         }
 
         return true;
