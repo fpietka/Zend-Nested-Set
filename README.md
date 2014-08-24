@@ -8,35 +8,34 @@ into the library directory. If you do not yet have Zend Framework, you
 can get it from one of the following sources:
 
   * Official Release:
-    http://framework.zend.com/downloads/latest#ZF1
+http://framework.zend.com/downloads/latest#ZF1
 
   * Using Subversion; use either the current trunk or the 1.12.7 release branch:
-    svn checkout http://framework.zend.com/svn/framework/standard/trunk/library/Zend
-    svn checkout http://framework.zend.com/svn/framework/standard/branches/release-1.12/library/Zend
+<pre>
+svn checkout http://framework.zend.com/svn/framework/standard/trunk/library/Zend
+svn checkout http://framework.zend.com/svn/framework/standard/branches/release-1.12/library/Zend
+</pre>
 
   * Using Git; use either the current master or the 1.12.7 release branch:
-    git clone https://github.com/zendframework/zf1
-    git checkout release-1.12.7
+<pre>
+git clone https://github.com/zendframework/zf1
+git checkout release-1.12.7
+</pre>
 
 DEPENDENCY
 =======================================================================
 
-PHP Package
-    php5 php-pear php5-sqlite php5-curl php5-xmlrpc php5-json
+* PHP Package
+<pre>php5 php-pear php5-sqlite php5-curl php5-xmlrpc php5-json</pre>
 
-PHAR Package
-    Atoum
+* PHAR Package
+<pre>wget http://downloads.atoum.org/nightly/mageekguy.atoum.phar</pre>
 
 DOCUMENTATION
 ======================================================================
 
 To lauch unit tests:
     php mageekguy.atoum.phar -d tests/
-
-FEATURES
-=======================================================================
-
-@todo
 
 REQUESTS
 =======================================================================
