@@ -165,103 +165,133 @@ class NestedSet_Model
      */
     public function add($name, $reference = null, $position = 'into')
     {
-        $db = $this->_db;
-
         $name = (string) $name;
 
         if (is_null($reference)) {
-            // In this case, add it to the end of the set at first level
-            $select = $db->select();
-            $select->from($this->_tableName, array('max' => "MAX({$this->_structure['right']})"));
-
-            $stmt   = $db->query($select);
-            $result = $stmt->fetch();
-
-            if (false === $result) {
-                $result = 0;
-            }
-            else {
-                $result = $result['max'];
-            }
-
-            $left  = $result + 1;
-            $right = $result + 2;
-
-            try {
-                $db->beginTransaction();
-
-                // insert at the end of the nest
-                $values = array(
-                    $this->_structure['name']  => $name,
-                    $this->_structure['left']  => $left,
-                    $this->_structure['right'] => $right,
-                );
-
-                $db->insert($this->_tableName, $values);
-                $db->commit();
-            }
-            catch (Exception $e) {
-                $db->rollBack();
-                throw new Exception($e->getMessage());
-            }
+            $this->_append($name);
         }
         else {
             $reference = (int) $reference;
-            // case INTO
 
-            // get parent's right value
-            $select = $db->select();
-            $select->from($this->_tableName, $this->_structure['right']);
-            $select->where("{$this->_structure['id']} = $reference");
+            $this->_addInto($name, $reference);
+        }
 
-            $stmt   = $db->query($select);
-            $result = $stmt->fetch();
+        return $this;
+    }
 
-            $right = $result[$this->_structure['right']];
+    /**
+     * Add an element to the end of the tree.
+     *
+     * @param $name|string      Name of the element
+     * @param $reference|int    Id of the reference element
+     *
+     * @return $this
+     */
+    private function _append($name)
+    {
+        $db = $this->_db;
 
-            try {
-                $db->beginTransaction();
+        $select = $db->select();
+        $select->from($this->_tableName, array('max' => "MAX({$this->_structure['right']})"));
 
-                // move next elements' right to make room
-                $stmt = $db->query("
-                    UPDATE {$this->_tableName}
-                       SET {$this->_structure['right']} = {$this->_structure['right']} + 2
-                     WHERE {$this->_structure['right']} > $right;
-                ");
-                $update = $stmt->fetch();
+        $stmt   = $db->query($select);
+        $result = $stmt->fetch();
 
-                // move next elements' left
-                $stmt = $db->query("
-                    UPDATE {$this->_tableName}
-                       SET {$this->_structure['left']} = {$this->_structure['left']} + 2
-                     WHERE {$this->_structure['left']} > $right;
-                ");
-                $update = $stmt->fetch();
+        if (false === $result) {
+            $result = 0;
+        }
+        else {
+            $result = $result['max'];
+        }
 
-                // make room into parent element
-                $stmt = $db->query("
-                    UPDATE {$this->_tableName}
-                       SET {$this->_structure['right']} = {$this->_structure['right']} + 2
-                     WHERE {$this->_structure['id']} = :reference;
-                ", array(
-                    'reference' => $reference,
-                ));
-                $update = $stmt->fetch();
+        $left  = $result + 1;
+        $right = $result + 2;
 
-                // insert new element
-                $values = array(
-                    $this->_structure['name']  => $name,
-                    $this->_structure['left']  => $right,
-                    $this->_structure['right'] => $right + 1,
-                );
+        try {
+            $db->beginTransaction();
 
-                $db->insert($this->_tableName, $values);
-                $db->commit();
-            }
-            catch (Exception $e) {
-                $db->rollBack();
-                throw new Exception($e->getMessage());
-            }
+            // insert at the end of the nest
+            $values = array(
+                $this->_structure['name']  => $name,
+                $this->_structure['left']  => $left,
+                $this->_structure['right'] => $right,
+            );
+
+            $db->insert($this->_tableName, $values);
+            $db->commit();
+        }
+        catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an element into another as its child.
+     *
+     * @param $name|string      Name of the element
+     * @param $reference|int    Id of the reference element
+     *
+     * @return $this
+     */
+    private function _addInto($name, $reference)
+    {
+        $db = $this->_db;
+
+        // get parent's right value
+        $select = $db->select();
+        $select->from($this->_tableName, $this->_structure['right']);
+        $select->where("{$this->_structure['id']} = $reference");
+
+        $stmt   = $db->query($select);
+        $result = $stmt->fetch();
+
+        $right = $result[$this->_structure['right']];
+
+        try {
+            $db->beginTransaction();
+
+            // move next elements' right to make room
+            $stmt = $db->query("
+                UPDATE {$this->_tableName}
+                   SET {$this->_structure['right']} = {$this->_structure['right']} + 2
+                 WHERE {$this->_structure['right']} > $right;
+            ");
+            $update = $stmt->fetch();
+
+            // move next elements' left
+            $stmt = $db->query("
+                UPDATE {$this->_tableName}
+                   SET {$this->_structure['left']} = {$this->_structure['left']} + 2
+                 WHERE {$this->_structure['left']} > $right;
+            ");
+            $update = $stmt->fetch();
+
+            // make room into parent element
+            $stmt = $db->query("
+                UPDATE {$this->_tableName}
+                   SET {$this->_structure['right']} = {$this->_structure['right']} + 2
+                 WHERE {$this->_structure['id']} = :reference;
+            ", array(
+                'reference' => $reference,
+            ));
+            $update = $stmt->fetch();
+
+            // insert new element
+            $values = array(
+                $this->_structure['name']  => $name,
+                $this->_structure['left']  => $right,
+                $this->_structure['right'] => $right + 1,
+            );
+
+            $db->insert($this->_tableName, $values);
+            $db->commit();
+        }
+        catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
         }
 
         return $this;
