@@ -1,2 +1,0 @@
-TRUNCATE TABLE nested;
-ALTER SEQUENCE nested_id_seq RESTART WITH 1;
