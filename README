@@ -1,4 +1,4 @@
-@todo
+[![Build Status](https://scrutinizer-ci.com/g/fpietka/Zend-Nested-Set/badges/build.png?b=master)](https://scrutinizer-ci.com/g/fpietka/Zend-Nested-Set/build-status/master) [![Code Coverage](https://scrutinizer-ci.com/g/fpietka/Zend-Nested-Set/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/fpietka/Zend-Nested-Set/?branch=master)
 
 INSTALLATION
 =======================================================================
@@ -11,8 +11,8 @@ can get it from one of the following sources:
     http://framework.zend.com/downloads/latest#ZF1
 
   * Using Subversion; use either the current trunk or the 1.12.7 release branch:
-    svn co http://framework.zend.com/svn/framework/standard/trunk/library/Zend
-    svn co http://framework.zend.com/svn/framework/standard/branches/release-1.12/library/Zend
+    svn checkout http://framework.zend.com/svn/framework/standard/trunk/library/Zend
+    svn checkout http://framework.zend.com/svn/framework/standard/branches/release-1.12/library/Zend
 
   * Using Git; use either the current master or the 1.12.7 release branch:
     git clone https://github.com/zendframework/zf1
