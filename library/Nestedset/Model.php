@@ -1,7 +1,5 @@
 <?php
 /**
- * $Id$
- *
  * This object is a pattern to store hieriarchical data into a SQL database.
  *
  * The objective is to make it easier to get a full or partial tree from the database
@@ -60,14 +58,10 @@ class NestedSet_Model
     private $_left;
 
     /**
-     * Database informations required to locate/save the nest
+     * Database informations required to locate/save the set
      */
     private $_db;
     private $_tableName;
-
-    public function __construct()
-    {
-    }
 
     /**
      * @param $tableName|string
