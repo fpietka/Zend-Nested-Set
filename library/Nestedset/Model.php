@@ -883,33 +883,6 @@ class NestedSet_Model
     }
 
     /**
-     * Returns all children of an element. Default is direct children
-     *
-     * @param $elementId|int    Element ID
-     * @param $level|int        Level of children to return, level 1 mean direct
-     *
-     * @return array
-     */
-    public function getChildren($elementId, $level = 1)
-    {
-        // @todo
-        // use getElement excluding main one
-        // might look like getAll
-    }
-
-    /**
-     * Returns all elements from this level of depth.
-     *
-     * @param $level|int        Level of elements.
-     *
-     * @return array
-     */
-    public function getLevel($level)
-    {
-        // @todo
-    }
-
-    /**
      * Returns if the element is root.
      *
      * @param $elementId|int    Element ID
@@ -939,21 +912,5 @@ class NestedSet_Model
         $result = $stmt->fetchColumn();
 
         return (boolean) $result;
-    }
-
-    /**
-     * Sort elements. By default sort all the tree by levels. If a parent is
-     * set, it will only sort from this parent's children. If a depth is set, it
-     * will sort up to this depth, default being sorting all depth from this
-     * parent element.
-     *
-     * @param $elementId|int    ID of the element to sort
-     * @param $depth|int        Depth of the sorting action
-     *
-     * @return $this
-     */
-    public function sortElement($elementId = null, $depth = null)
-    {
-        // @todo
     }
 }
