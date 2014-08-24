@@ -336,4 +336,19 @@ class NestedSet_Model extends atoum\test
         $nestedset->add('bar', 1);
         $this->assert->integer($nestedset->numberOfDescendant(1))->isEqualTo(1);
     }
+
+    public function testGetParent()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+        $expected_result = array('id' => '1', 'name' => 'foo');
+
+        $this->assert->array($nestedset->getParent(2))->isEqualTo($expected_result);
+    }
 }
