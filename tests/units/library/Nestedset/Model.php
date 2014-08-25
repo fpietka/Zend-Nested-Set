@@ -38,7 +38,6 @@ class NestedSet_Model extends atoum\test
             case 'testGetElement':
             case 'testIsRoot':
             case 'testIsNotRoot':
-            case 'testGetLevel':
             case 'testGetLeafs':
             case 'testGetPath':
             case 'testMove':
@@ -237,19 +236,6 @@ class NestedSet_Model extends atoum\test
 
         $expected_result = '[{"id":"1","name":"foo","lft":"1","rgt":"4","depth":"0","children":[{"id":"2","name":"bar","lft":"2","rgt":"3","depth":"1","children":[]}]}]';
         $this->assert->string($nestedset->toJson())->isEqualTo($expected_result);
-    }
-
-    public function testGetLevel()
-    {
-        $nestedset = new \NestedSet_Model();
-
-        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
-        $nestedset->setDb($db);
-        $nestedset->setTableName('nested');
-
-        $nestedset->add('foo');
-
-        //$this->assert->integer($nestedset->getLevel(1))->isZero();
     }
 
     public function testGetPath()
