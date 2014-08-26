@@ -558,7 +558,7 @@ class NestedSet_Model
             }
         }
 
-        $query .= "ORDER BY node.{$this->_structure['left']} $order;";
+        $query .= " ORDER BY node.{$this->_structure['left']} $order;";
 
         $stmt  = $db->query($query);
         $nodes = $stmt->fetchAll();
