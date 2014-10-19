@@ -46,6 +46,7 @@ class NestedSet_Model extends atoum\test
             case 'testToHtml':
             case 'testNumberOfDescendant':
             case 'testGetParent':
+            case 'testGetAll':
                 $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
                 $db->query('DROP TABLE nested');
                 $db->query('
@@ -337,5 +338,35 @@ class NestedSet_Model extends atoum\test
         $expected_result = array('id' => '1', 'name' => 'foo');
 
         $this->assert->array($nestedset->getParent(2))->isEqualTo($expected_result);
+    }
+
+    public function testGetAll()
+    {
+        $nestedset = new \NestedSet_Model();
+
+        $db = \Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+        $expected_result = array(
+            array(
+                'id' => "1",
+                'name' => "foo",
+                'lft' => "1",
+                'rgt' => "4",
+                'depth' => "0"
+            ),
+            array(
+                'id' => "2",
+                'name' => "bar",
+                'lft' => "2",
+                'rgt' => "3",
+                'depth' => "1"
+            )
+        );
+
+        $this->assert->array($nestedset->getAll(2))->isEqualTo($expected_result);
     }
 }
