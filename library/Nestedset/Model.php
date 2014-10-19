@@ -500,6 +500,11 @@ class NestedSet_Model
         return $result;
     }
 
+    public function getAll($depth = null, $mode = 'include', $order = 'ASC')
+    {
+        return $this->_getAll($depth, $mode, $order);
+    }
+
     /**
      * Get all elements from nested set
      *
