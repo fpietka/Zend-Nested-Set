@@ -42,7 +42,7 @@ class NestedSet_Model
      *
      * This represent the default table structure
      */
-    private $_structure = array(
+    protected $_structure = array(
         'id'    => 'id',
         'name'  => 'name',
         'left'  => 'lft',
@@ -52,8 +52,8 @@ class NestedSet_Model
     /**
      * Database informations required to locate/save the set
      */
-    private $_db;
-    private $_tableName;
+    protected $_db;
+    protected $_tableName;
 
     /**
      * @param $tableName|string
@@ -187,7 +187,7 @@ class NestedSet_Model
      *
      * @return $this
      */
-    private function _append($name)
+    protected function _append($name)
     {
         $db = $this->_db;
 
@@ -236,7 +236,7 @@ class NestedSet_Model
      *
      * @return $this
      */
-    private function _addInto($name, $reference)
+    protected function _addInto($name, $reference)
     {
         $db = $this->_db;
 
@@ -395,7 +395,7 @@ class NestedSet_Model
 
             $db->beginTransaction();
             // first make room into reference
-            // @TODO make a private method to make room
+            // @TODO make a protected method to make room
             // with must always be a pair number
             $elementWidth = $this->_getNodeWidth($elementId);
 
@@ -466,7 +466,7 @@ class NestedSet_Model
      *
      * @return int
      */
-    private function _getNodeWidth($elementId)
+    protected function _getNodeWidth($elementId)
     {
         $db = $this->_db;
 
@@ -514,7 +514,7 @@ class NestedSet_Model
      *
      * @return array
      */
-    private function _getAll($depth = null, $mode = 'include', $order = 'ASC')
+    protected function _getAll($depth = null, $mode = 'include', $order = 'ASC')
     {
         $db = $this->_db;
 
@@ -767,7 +767,7 @@ class NestedSet_Model
      *
      * @return array
      */
-    private function _getElement($elementId, $depth = null, $order = 'ASC')
+    protected function _getElement($elementId, $depth = null, $order = 'ASC')
     {
         // @TODO: test -> if multiple elements with depth 1 are found -> error
         $db        = $this->_db;
