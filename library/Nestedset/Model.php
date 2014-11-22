@@ -369,7 +369,7 @@ class NestedSet_Model
      * @param $position|string  Position from the reference element. Values are
      *                          'into', 'before', 'after'.
      *
-     * return $this
+     * @return $this
      */
     public function move($elementId, $referenceId, $position = 'into')
     {
