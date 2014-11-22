@@ -325,9 +325,29 @@ class NestedSet_Model
             return false;
         }
 
+        if ($isRecursive) {
+            $this->_deleteRecursive($result);
+        } else {
+            // @TODO
+        }
+
+        return $this;
+    }
+
+    /**
+     * Recursively delete a node, with all its children
+     *
+     * @param $tree|array
+     *
+     * @return $this
+     */
+    protected function _deleteRecursive(array $tree)
+    {
+        $db = $this->_db;
+
         // get interval for recursive delete
-        $left  = (int) $result[$this->_structure['left']];
-        $right = (int) $result[$this->_structure['right']];
+        $left  = (int) $tree[$this->_structure['left']];
+        $right = (int) $tree[$this->_structure['right']];
 
         try {
             $db->beginTransaction();
