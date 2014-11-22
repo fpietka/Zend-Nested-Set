@@ -500,11 +500,6 @@ class NestedSet_Model
         return $result;
     }
 
-    public function getAll($depth = null, $mode = 'include', $order = 'ASC')
-    {
-        return $this->_getAll($depth, $mode, $order);
-    }
-
     /**
      * Get all elements from nested set
      *
@@ -514,7 +509,7 @@ class NestedSet_Model
      *
      * @return array
      */
-    protected function _getAll($depth = null, $mode = 'include', $order = 'ASC')
+    public function getAll($depth = null, $mode = 'include', $order = 'ASC')
     {
         $db = $this->_db;
 
@@ -581,7 +576,7 @@ class NestedSet_Model
     public function toArray($tree = null)
     {
         if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->_getAll();
+            $nodes = $this->getAll();
         }
         else {
             $nodes = $tree;
@@ -638,7 +633,7 @@ class NestedSet_Model
     public function toXml($tree = null)
     {
         if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->_getAll();
+            $nodes = $this->getAll();
         }
         else {
             $nodes = $tree;
@@ -709,7 +704,7 @@ class NestedSet_Model
     public function toHtml($tree = null, $method = 'list')
     {
         if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->_getAll();
+            $nodes = $this->getAll();
         }
         else {
             $nodes = $tree;
