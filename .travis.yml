@@ -3,11 +3,15 @@ php:
   - 5.6
   - 5.5
   - 5.4
+addons:
+  code_climate:
+    repo_token: 92e74a3da43723c3faab873f6e964e60e7a5e48c020611bf865a8bfa2eff676b
 before_script:
   - wget http://downloads.atoum.org/nightly/mageekguy.atoum.phar
   - wget https://packages.zendframework.com/releases/ZendFramework-1.12.7/ZendFramework-1.12.7-minimal.tar.gz
   - tar -xzf ZendFramework-1.12.7-minimal.tar.gz
   - ln -s ../ZendFramework-1.12.7-minimal/library/Zend/ library/
+  - composer install --dev
 script:
   ## Atoum
   - php mageekguy.atoum.phar -d tests/
@@ -15,3 +19,4 @@ after_script:
   ## Scrutinizer
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover ./build/logs/clover.xml
+  - vendor/bin/test-reporter
