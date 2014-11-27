@@ -21,4 +21,4 @@ after_script:
   - php ocular.phar code-coverage:upload --format=php-clover ./build/logs/clover.xml
   ## Code Climate
   - CODECLIMATE_REPO_TOKEN=92e74a3da43723c3faab873f6e964e60e7a5e48c020611bf865a8bfa2eff676b vendor/bin/test-reporter --stdout > codeclimate.json
-  - "curl -X POST -d @codeclimate.json -H 'Content-Type: application/json' -H 'User-Agent: Code Climate (PHP Test Reporter v0.1.1)' https://codeclimate.com/test_reports"
+  - "curl -v -X POST -d @codeclimate.json -H 'Content-Type: application/json' -H 'User-Agent: Code Climate (PHP Test Reporter v0.1.1)' https://codeclimate.com/test_reports"
