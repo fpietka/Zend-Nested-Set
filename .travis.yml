@@ -8,14 +8,14 @@ addons:
     repo_token:
       secure: "WKOU1lou2JCzy/YZH8YxTyN90EqlieQWgzUhWpj0p71KhlXwJQ/Seq6SSA0vKHpeeLinuaZBGoX4DuGrqkbi0s6kGHNP02cycMFuu1tY2E69CNX8OKz5D5Vv3cXjgzpaRTtyfRkxfGzxogorYPivrCchV1wrtMc6ERB/dE0pWFo="
 before_script:
-  - wget http://downloads.atoum.org/nightly/mageekguy.atoum.phar
+  - wget https://phar.phpunit.de/phpunit.phar
   - wget https://packages.zendframework.com/releases/ZendFramework-1.12.7/ZendFramework-1.12.7-minimal.tar.gz
   - tar -xzf ZendFramework-1.12.7-minimal.tar.gz
   - ln -s ../ZendFramework-1.12.7-minimal/library/Zend/ library/
   - composer install --dev
 script:
   ## Atoum
-  - php mageekguy.atoum.phar -d tests/units/
+  - php phpunit.phar
 after_script:
   ## Scrutinizer
   - wget https://scrutinizer-ci.com/ocular.phar
