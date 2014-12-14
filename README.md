@@ -29,7 +29,7 @@ DEPENDENCY
 <pre>php5 php-pear php5-sqlite php5-curl php5-xmlrpc php5-json</pre>
 
 * PHAR Package
-<pre>wget http://downloads.atoum.org/nightly/mageekguy.atoum.phar</pre>
+<pre>wget https://phar.phpunit.de/phpunit.phar</pre>
 
 DOCUMENTATION
 ======================================================================
