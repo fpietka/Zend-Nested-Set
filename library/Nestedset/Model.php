@@ -285,77 +285,10 @@ class NestedSet_Model
             return false;
         }
 
-        try {
-            // Case INTO
-
-            // Check it can be moved into. XXX change when we'll get one level
-            if ($element[0][$this->_structure['left']] > $reference[0][$this->_structure['left']] &&
-                $element[0][$this->_structure['left']] < $reference[0][$this->_structure['right']]) {
-                // already into
-                return false;
-            }
-
-            $db->beginTransaction();
-            // first make room into reference
-            // @TODO make a protected method to make room
-            // with must always be a pair number
-            $elementWidth = $this->_getNodeWidth($elementId);
-
-            // move right
-            $referenceRight = $reference[0][$this->_structure['right']];
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} + $elementWidth
-                 WHERE {$this->_structure['right']} >= $referenceRight;
-            ");
-            $update = $stmt->fetch();
-
-            // move left
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} + $elementWidth
-                 WHERE {$this->_structure['left']} > $referenceRight;
-            ");
-            $update = $stmt->fetch();
-
-            // then move element (and it's children)
-            $element    = $this->_getElement($elementId);
-            $elementIds = array();
-            foreach ($element as $one) {
-                array_push($elementIds, $one[$this->_structure['id']]);
-            }
-            $elementIds = implode(', ', $elementIds);
-
-            $difference = $reference[0][$this->_structure['right']] - $element[0][$this->_structure['left']];
-
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']}  = {$this->_structure['left']}  + $difference,
-                       {$this->_structure['right']} = {$this->_structure['right']} + $difference
-                 WHERE {$this->_structure['id']} IN ($elementIds);
-            ");
-            $update = $stmt->fetch();
-
-            // move what was on the right of the element
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} - $elementWidth
-                 WHERE {$this->_structure['left']} > {$element[0][$this->_structure['left']]};
-            ");
-            $update = $stmt->fetch();
-
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} - $elementWidth
-                 WHERE {$this->_structure['right']} > {$element[0][$this->_structure['right']]};
-            ");
-            $update = $stmt->fetch();
-
-            $db->commit();
-        }
-        catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
+        switch ($position) {
+            case 'into':
+            default:
+                (new NestedSet_Model_Builder)->moveInto($this, $element, $reference);
         }
 
         return true;
