@@ -363,6 +363,14 @@ class NestedSet_Model
 
     /**
      * Get width of a node
+     */
+    public function getNodeWidth($elementId)
+    {
+        return $this->_getNodeWidth($elementId);
+    }
+
+    /**
+     * Get width of a node
      *
      * @param $elementId|int    Id of the node
      *
