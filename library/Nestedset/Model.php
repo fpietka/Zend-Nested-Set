@@ -369,52 +369,7 @@ class NestedSet_Model
      */
     public function toArray($tree = null)
     {
-        if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->getAll();
-        }
-        else {
-            $nodes = $tree;
-        }
-
-        $result     = array();
-        $stackLevel = 0;
-
-        if (count($nodes) > 0) {
-            // Node Stack. Used to help building the hierarchy
-            $stack = array();
-
-            foreach ($nodes as $node) {
-                $node['children'] = array();
-
-                // Number of stack items
-                $stackLevel = count($stack);
-
-                // Check if we're dealing with different levels
-                while ($stackLevel > 0 && $stack[$stackLevel - 1]['depth'] >= $node['depth']) {
-                    array_pop($stack);
-                    $stackLevel--;
-                }
-
-                // Stack is empty (we are inspecting the root)
-                if ($stackLevel == 0) {
-                    // Assigning the root node
-                    $i = count($result);
-
-                    // $result[$i] = $item;
-                    $result[$i] = $node;
-                    $stack[] =& $result[$i];
-                }
-                else {
-                    // Add node to parent
-                    $i = count($stack[$stackLevel - 1]['children']);
-
-                    $stack[$stackLevel - 1]['children'][$i] = $node;
-                    $stack[] =& $stack[$stackLevel - 1]['children'][$i];
-                }
-            }
-        }
-
-        return $result;
+        return (new NestedSet_Model_Output)->toArray($this, $tree);
     }
 
     /**
@@ -426,50 +381,7 @@ class NestedSet_Model
      */
     public function toXml($tree = null)
     {
-        if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->getAll();
-        }
-        else {
-            $nodes = $tree;
-        }
-
-        $xml  = new DomDocument('1.0');
-        $xml->preserveWhiteSpace = false;
-        $root = $xml->createElement('root');
-        $xml->appendChild($root);
-
-        $depth = 0;
-        $currentChildren = array();
-
-        foreach ($nodes as $node) {
-            $element = $xml->createElement('element');
-            $element->setAttribute('id', $node['id']);
-            $element->setAttribute('name', $node['name']);
-            $element->setAttribute('lft', $node['lft']);
-            $element->setAttribute('rgt', $node['rgt']);
-
-            $children = $xml->createElement('children');
-            $element->appendChild($children);
-
-            if ($node['depth'] == 0) {
-                // Handle root
-                $root->appendChild($element);
-                $currentChildren[0] = $children;
-            }
-            elseif ($node['depth'] > $depth) {
-                // is a new sub level
-                $currentChildren[$depth]->appendChild($element);
-                $currentChildren[$node['depth']] = $children;
-            }
-            elseif ($node['depth'] == $depth || $node['depth'] < $depth) {
-                // is at the same level
-                $currentChildren[$node['depth'] - 1]->appendChild($element);
-            }
-
-            $depth = $node['depth'];
-        }
-
-        return $xml->saveXML();
+        return (new NestedSet_Model_Output)->toXml($this, $tree);
     }
 
     /**
@@ -481,10 +393,7 @@ class NestedSet_Model
      */
     public function toJson($tree = null)
     {
-        $nestedArray = $this->toArray($tree);
-        $result      = json_encode($nestedArray);
-
-        return $result;
+        return (new NestedSet_Model_Output)->toJson($this, $tree);
     }
 
     /**
@@ -497,43 +406,7 @@ class NestedSet_Model
      */
     public function toHtml($tree = null, $method = 'list')
     {
-        if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->getAll();
-        }
-        else {
-            $nodes = $tree;
-        }
-
-        if ($method == 'list') {
-            $result = "<ul>";
-            $depth  = $nodes[0]['depth'];
-
-            foreach ($nodes as $node) {
-
-                if ($depth < $node['depth']) {
-                    $result .= "<ul>";
-                }
-                elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
-                    $result .= "</li>";
-                }
-                elseif ($depth > $node['depth']) {
-                    for ($i = 0; $i < ($depth - $node['depth']); $i++) {
-                        $result .= "</li></ul>";
-                    }
-                }
-
-                // XXX Currently it outputs results according to my actual needs
-                // for testing purpose.
-                $result .= "<li>{$node[$this->_structure['name']]} (id: {$node[$this->_structure['id']]} left: {$node[$this->_structure['left']]} right: {$node[$this->_structure['right']]})";
-
-                $depth = $node['depth'];
-            }
-
-            $result .= "</li></ul>";
-            $result .= "</ul>";
-
-            return $result;
-        }
+        return (new NestedSet_Model_Output)->toHtml($this, $tree, $method);
     }
 
     /**
