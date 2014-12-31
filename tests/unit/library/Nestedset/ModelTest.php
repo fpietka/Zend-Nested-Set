@@ -31,6 +31,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
         {
             case 'testAddASimpleElement':
             case 'testDeleteElement':
+            case 'testDeleteRecursiveElement':
             case 'testGetElement':
             case 'testIsRoot':
             case 'testIsNotRoot':
@@ -142,6 +143,23 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
 
         $nestedset->add('foo');
         $nestedset->delete(1);
+
+        $expected_result = '[]';
+
+        $this->assertEquals($nestedset->toJson(), $expected_result);
+    }
+
+    public function testDeleteRecursiveElement()
+    {
+        $nestedset = new NestedSet_Model();
+
+        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+        $nestedset->delete(1, true);
 
         $expected_result = '[]';
 
