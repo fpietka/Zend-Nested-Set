@@ -168,130 +168,12 @@ class NestedSet_Model
         $name = (string) $name;
 
         if (is_null($reference)) {
-            $this->_append($name);
+            (new NestedSet_Model_Builder)->append($this, $name);
         }
         else {
             $reference = (int) $reference;
 
-            $this->_addInto($name, $reference);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add an element to the end of the tree.
-     *
-     * @param $name|string      Name of the element
-     * @param $reference|int    Id of the reference element
-     *
-     * @return $this
-     */
-    protected function _append($name)
-    {
-        $db = $this->_db;
-
-        $select = $db->select();
-        $select->from($this->_tableName, array('max' => "MAX({$this->_structure['right']})"));
-
-        $stmt   = $db->query($select);
-        $result = $stmt->fetch();
-
-        if (false === $result) {
-            $result = 0;
-        }
-        else {
-            $result = $result['max'];
-        }
-
-        $left  = $result + 1;
-        $right = $result + 2;
-
-        try {
-            $db->beginTransaction();
-
-            // insert at the end of the nest
-            $values = array(
-                $this->_structure['name']  => $name,
-                $this->_structure['left']  => $left,
-                $this->_structure['right'] => $right,
-            );
-
-            $db->insert($this->_tableName, $values);
-            $db->commit();
-        }
-        catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add an element into another as its child.
-     *
-     * @param $name|string      Name of the element
-     * @param $reference|int    Id of the reference element
-     *
-     * @return $this
-     */
-    protected function _addInto($name, $reference)
-    {
-        $db = $this->_db;
-
-        // get parent's right value
-        $select = $db->select();
-        $select->from($this->_tableName, $this->_structure['right']);
-        $select->where("{$this->_structure['id']} = $reference");
-
-        $stmt   = $db->query($select);
-        $result = $stmt->fetch();
-
-        $right = $result[$this->_structure['right']];
-
-        try {
-            $db->beginTransaction();
-
-            // move next elements' right to make room
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} + 2
-                 WHERE {$this->_structure['right']} > $right;
-            ");
-            $update = $stmt->fetch();
-
-            // move next elements' left
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} + 2
-                 WHERE {$this->_structure['left']} > $right;
-            ");
-            $update = $stmt->fetch();
-
-            // make room into parent element
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} + 2
-                 WHERE {$this->_structure['id']} = :reference;
-            ", array(
-                'reference' => $reference,
-            ));
-            $update = $stmt->fetch();
-
-            // insert new element
-            $values = array(
-                $this->_structure['name']  => $name,
-                $this->_structure['left']  => $right,
-                $this->_structure['right'] => $right + 1,
-            );
-
-            $db->insert($this->_tableName, $values);
-            $db->commit();
-        }
-        catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
+            (new NestedSet_Model_Builder)->addInto($this, $name, $reference);
         }
 
         return $this;
@@ -311,7 +193,7 @@ class NestedSet_Model
         $isRecursive = (boolean) $recursive;
         $id          = (integer) $id;
 
-        $db = $this->_db;
+        $db = $this->getDb();
 
         $select = $db
             ->select()
@@ -326,58 +208,9 @@ class NestedSet_Model
         }
 
         if ($isRecursive) {
-            $this->_deleteRecursive($result);
+            (new NestedSet_Model_Builder)->deleteRecursive($this, $result);
         } else {
             // @TODO
-        }
-
-        return $this;
-    }
-
-    /**
-     * Recursively delete a node, with all its children
-     *
-     * @param $tree|array
-     *
-     * @return $this
-     */
-    protected function _deleteRecursive(array $tree)
-    {
-        $db = $this->_db;
-
-        // get interval for recursive delete
-        $left  = (int) $tree[$this->_structure['left']];
-        $right = (int) $tree[$this->_structure['right']];
-
-        try {
-            $db->beginTransaction();
-
-            $delete = $db->delete($this->_tableName, "{$this->_structure['left']} BETWEEN $left AND $right");
-
-            // update other elements
-            $width = $right - $left + 1;
-
-            // update right
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} - $width
-                 WHERE {$this->_structure['right']} > $right
-            ");
-            $update = $stmt->fetch();
-
-            // update left
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} - $width
-                 WHERE {$this->_structure['left']} > $right
-            ");
-            $update = $stmt->fetch();
-
-            $db->commit();
-        }
-        catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
         }
 
         return $this;
@@ -393,87 +226,20 @@ class NestedSet_Model
      */
     public function move($elementId, $referenceId, $position = 'into')
     {
-        $db = $this->_db;
+        $db = $this->getDb();
 
-        $reference = $this->_getElement($referenceId);
-        $element   = $this->_getElement($elementId); // @TODO get one level, we don't need all this tree
+        $reference = $this->getElement($referenceId);
+        $element   = $this->getElement($elementId); // @TODO get one level, we don't need all this tree
 
         // error handling
         if (empty($element) || empty($reference)) {
             return false;
         }
 
-        try {
-            // Case INTO
-
-            // Check it can be moved into. XXX change when we'll get one level
-            if ($element[0][$this->_structure['left']] > $reference[0][$this->_structure['left']] &&
-                $element[0][$this->_structure['left']] < $reference[0][$this->_structure['right']]) {
-                // already into
-                return false;
-            }
-
-            $db->beginTransaction();
-            // first make room into reference
-            // @TODO make a protected method to make room
-            // with must always be a pair number
-            $elementWidth = $this->_getNodeWidth($elementId);
-
-            // move right
-            $referenceRight = $reference[0][$this->_structure['right']];
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} + $elementWidth
-                 WHERE {$this->_structure['right']} >= $referenceRight;
-            ");
-            $update = $stmt->fetch();
-
-            // move left
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} + $elementWidth
-                 WHERE {$this->_structure['left']} > $referenceRight;
-            ");
-            $update = $stmt->fetch();
-
-            // then move element (and it's children)
-            $element    = $this->_getElement($elementId);
-            $elementIds = array();
-            foreach ($element as $one) {
-                array_push($elementIds, $one[$this->_structure['id']]);
-            }
-            $elementIds = implode(', ', $elementIds);
-
-            $difference = $reference[0][$this->_structure['right']] - $element[0][$this->_structure['left']];
-
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']}  = {$this->_structure['left']}  + $difference,
-                       {$this->_structure['right']} = {$this->_structure['right']} + $difference
-                 WHERE {$this->_structure['id']} IN ($elementIds);
-            ");
-            $update = $stmt->fetch();
-
-            // move what was on the right of the element
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} - $elementWidth
-                 WHERE {$this->_structure['left']} > {$element[0][$this->_structure['left']]};
-            ");
-            $update = $stmt->fetch();
-
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} - $elementWidth
-                 WHERE {$this->_structure['right']} > {$element[0][$this->_structure['right']]};
-            ");
-            $update = $stmt->fetch();
-
-            $db->commit();
-        }
-        catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
+        switch ($position) {
+            case 'into':
+            default:
+                (new NestedSet_Model_Builder)->moveInto($this, $element, $reference);
         }
 
         return true;
@@ -481,23 +247,10 @@ class NestedSet_Model
 
     /**
      * Get width of a node
-     *
-     * @param $elementId|int    Id of the node
-     *
-     * @return int
      */
-    protected function _getNodeWidth($elementId)
+    public function getNodeWidth($elementId)
     {
-        $db = $this->_db;
-
-        $stmt = $db->query("
-            SELECT {$this->_structure['right']} - {$this->_structure['left']} + 1
-              FROM {$this->_tableName}
-             WHERE {$this->_structure['id']} = $elementId
-        ");
-        $width = $stmt->fetchColumn();
-
-        return $width;
+        return (new NestedSet_Model_Reader)->getNodeWidth($this, $elementId);
     }
 
     /**
@@ -507,17 +260,7 @@ class NestedSet_Model
      */
     public function getLeafs()
     {
-        $db = $this->_db;
-
-        $select = $db
-            ->select()
-            ->from($this->_tableName, array($this->_structure['id'], $this->_structure['name']))
-            ->where("{$this->_structure['right']} = {$this->_structure['left']} + 1");
-
-        $stmt   = $db->query($select);
-        $result = $stmt->fetchAll();
-
-        return $result;
+        return (new NestedSet_Model_Reader)->getLeafs($this);
     }
 
     /**
@@ -531,59 +274,7 @@ class NestedSet_Model
      */
     public function getAll($depth = null, $mode = 'include', $order = 'ASC')
     {
-        $db = $this->_db;
-
-        $query = "
-            SELECT
-                node.{$this->_structure['id']},
-                node.{$this->_structure['name']},
-                node.{$this->_structure['left']},
-                node.{$this->_structure['right']},
-                COUNT(parent.{$this->_structure['name']}) - 1 AS depth
-            FROM
-                {$this->_tableName} AS node,
-                {$this->_tableName} AS parent
-            WHERE node.{$this->_structure['left']} BETWEEN parent.{$this->_structure['left']} AND parent.{$this->_structure['right']}
-            GROUP BY node.{$this->_structure['id']}, node.{$this->_structure['name']}, node.{$this->_structure['left']}, node.{$this->_structure['right']}
-        ";
-
-        // Handle depth if required
-        if (!is_null($depth)) {
-            if (!is_array($depth)) {
-                $depth = (int) $depth;
-
-                if ($mode == 'exclude') {
-                    $mode = '=';
-                }
-                else {
-                    $mode = '!=';
-                }
-
-                $query .= "HAVING COUNT(parent.{$this->_structure['name']}) - 1 $mode $depth";
-            }
-            else {
-                foreach ($depth as &$one) {
-                    $one = (int) $one;
-                }
-                $depth = implode(', ', $depth);
-
-                if ($mode == 'exclude') {
-                    $mode = 'NOT IN';
-                }
-                else {
-                    $mode = 'IN';
-                }
-
-                $query .= "HAVING COUNT(parent.{$this->_structure['name']}) - 1 $mode ($depth)";
-            }
-        }
-
-        $query .= " ORDER BY node.{$this->_structure['left']} $order;";
-
-        $stmt  = $db->query($query);
-        $nodes = $stmt->fetchAll();
-
-        return $nodes;
+        return (new NestedSet_Model_Reader)->getAll($this, $depth, $mode, $order);
     }
 
     /**
@@ -595,52 +286,7 @@ class NestedSet_Model
      */
     public function toArray($tree = null)
     {
-        if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->getAll();
-        }
-        else {
-            $nodes = $tree;
-        }
-
-        $result     = array();
-        $stackLevel = 0;
-
-        if (count($nodes) > 0) {
-            // Node Stack. Used to help building the hierarchy
-            $stack = array();
-
-            foreach ($nodes as $node) {
-                $node['children'] = array();
-
-                // Number of stack items
-                $stackLevel = count($stack);
-
-                // Check if we're dealing with different levels
-                while ($stackLevel > 0 && $stack[$stackLevel - 1]['depth'] >= $node['depth']) {
-                    array_pop($stack);
-                    $stackLevel--;
-                }
-
-                // Stack is empty (we are inspecting the root)
-                if ($stackLevel == 0) {
-                    // Assigning the root node
-                    $i = count($result);
-
-                    // $result[$i] = $item;
-                    $result[$i] = $node;
-                    $stack[] =& $result[$i];
-                }
-                else {
-                    // Add node to parent
-                    $i = count($stack[$stackLevel - 1]['children']);
-
-                    $stack[$stackLevel - 1]['children'][$i] = $node;
-                    $stack[] =& $stack[$stackLevel - 1]['children'][$i];
-                }
-            }
-        }
-
-        return $result;
+        return (new NestedSet_Model_Output)->toArray($this, $tree);
     }
 
     /**
@@ -652,50 +298,7 @@ class NestedSet_Model
      */
     public function toXml($tree = null)
     {
-        if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->getAll();
-        }
-        else {
-            $nodes = $tree;
-        }
-
-        $xml  = new DomDocument('1.0');
-        $xml->preserveWhiteSpace = false;
-        $root = $xml->createElement('root');
-        $xml->appendChild($root);
-
-        $depth = 0;
-        $currentChildren = array();
-
-        foreach ($nodes as $node) {
-            $element = $xml->createElement('element');
-            $element->setAttribute('id', $node['id']);
-            $element->setAttribute('name', $node['name']);
-            $element->setAttribute('lft', $node['lft']);
-            $element->setAttribute('rgt', $node['rgt']);
-
-            $children = $xml->createElement('children');
-            $element->appendChild($children);
-
-            if ($node['depth'] == 0) {
-                // Handle root
-                $root->appendChild($element);
-                $currentChildren[0] = $children;
-            }
-            elseif ($node['depth'] > $depth) {
-                // is a new sub level
-                $currentChildren[$depth]->appendChild($element);
-                $currentChildren[$node['depth']] = $children;
-            }
-            elseif ($node['depth'] == $depth || $node['depth'] < $depth) {
-                // is at the same level
-                $currentChildren[$node['depth'] - 1]->appendChild($element);
-            }
-
-            $depth = $node['depth'];
-        }
-
-        return $xml->saveXML();
+        return (new NestedSet_Model_Output)->toXml($this, $tree);
     }
 
     /**
@@ -707,10 +310,7 @@ class NestedSet_Model
      */
     public function toJson($tree = null)
     {
-        $nestedArray = $this->toArray($tree);
-        $result      = json_encode($nestedArray);
-
-        return $result;
+        return (new NestedSet_Model_Output)->toJson($this, $tree);
     }
 
     /**
@@ -723,43 +323,7 @@ class NestedSet_Model
      */
     public function toHtml($tree = null, $method = 'list')
     {
-        if (empty($tree) || !is_array($tree)) {
-            $nodes = $this->getAll();
-        }
-        else {
-            $nodes = $tree;
-        }
-
-        if ($method == 'list') {
-            $result = "<ul>";
-            $depth  = $nodes[0]['depth'];
-
-            foreach ($nodes as $node) {
-
-                if ($depth < $node['depth']) {
-                    $result .= "<ul>";
-                }
-                elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
-                    $result .= "</li>";
-                }
-                elseif ($depth > $node['depth']) {
-                    for ($i = 0; $i < ($depth - $node['depth']); $i++) {
-                        $result .= "</li></ul>";
-                    }
-                }
-
-                // XXX Currently it outputs results according to my actual needs
-                // for testing purpose.
-                $result .= "<li>{$node[$this->_structure['name']]} (id: {$node[$this->_structure['id']]} left: {$node[$this->_structure['left']]} right: {$node[$this->_structure['right']]})";
-
-                $depth = $node['depth'];
-            }
-
-            $result .= "</li></ul>";
-            $result .= "</ul>";
-
-            return $result;
-        }
+        return (new NestedSet_Model_Output)->toHtml($this, $tree, $method);
     }
 
     /**
@@ -768,56 +332,7 @@ class NestedSet_Model
      */
     public function getElement($elementId, $depth = null)
     {
-        $element = $this->_getElement($elementId, $depth);
-        return $element;
-    }
-
-    /**
-     * Get one element with its children.
-     * @TODO depth
-     *
-     * @param $elementId|int    Element Id
-     * @param $depth|int        Optional, depth of the tree. Default null means
-     *                          full tree
-     *
-     * @return array
-     */
-    protected function _getElement($elementId, $depth = null, $order = 'ASC')
-    {
-        // @TODO: test -> if multiple elements with depth 1 are found -> error
-        $db        = $this->_db;
-        $elementId = (int) $elementId;
-
-        // Get main element left and right
-        $select = $db
-            ->select()
-            ->from($this->_tableName, array($this->_structure['left'], $this->_structure['right']))
-            ->where($this->_structure['id'] . ' = ?', $elementId);
-
-        $stmt    = $db->query($select);
-        $element = $stmt->fetch();
-
-        // Get the tree
-        $query = "
-            SELECT
-                node.{$this->_structure['id']},
-                node.{$this->_structure['name']},
-                node.{$this->_structure['left']},
-                node.{$this->_structure['right']},
-                COUNT(parent.{$this->_structure['name']}) - 1 AS depth
-              FROM
-                {$this->_tableName} AS node,
-                {$this->_tableName} AS parent
-             WHERE node.{$this->_structure['left']} BETWEEN parent.{$this->_structure['left']} AND parent.{$this->_structure['right']}
-               AND node.{$this->_structure['left']} BETWEEN {$element[$this->_structure['left']]} AND {$element[$this->_structure['right']]}
-             GROUP BY node.{$this->_structure['id']}, node.{$this->_structure['name']}, node.{$this->_structure['left']}, node.{$this->_structure['right']}
-             ORDER BY node.{$this->_structure['left']} $order
-        ";
-
-        $stmt  = $this->_db->query($query);
-        $nodes = $stmt->fetchAll();
-
-        return $nodes;
+        return (new NestedSet_Model_Reader)->getElement($this, $elementId, $depth);
     }
 
     /**
@@ -829,27 +344,7 @@ class NestedSet_Model
      */
     public function getPath($elementId, $order = 'ASC')
     {
-        $db        = $this->_db;
-        $elementId = (int) $elementId;
-
-        $query = "
-            SELECT
-                node.{$this->_structure['id']},
-                node.{$this->_structure['name']},
-                COUNT(parent.{$this->_structure['name']}) - 1 AS depth
-            FROM
-                {$this->_tableName} AS node,
-                {$this->_tableName} AS parent
-            WHERE node.{$this->_structure['left']} BETWEEN parent.{$this->_structure['left']} AND parent.{$this->_structure['right']}
-              AND node.{$this->_structure['id']} = $elementId
-            GROUP BY node.{$this->_structure['id']}, node.{$this->_structure['name']}, node.{$this->_structure['left']}
-            ORDER BY node.{$this->_structure['left']} $order;
-        ";
-
-        $stmt = $this->_db->query($query);
-        $path = $stmt->fetchAll();
-
-        return $path;
+        return (new NestedSet_Model_Reader)->getPath($this, $elementId, $order);
     }
 
     /**
@@ -863,28 +358,7 @@ class NestedSet_Model
      */
     public function getParent($elementId, $depth = 1)
     {
-        $db = $this->_db;
-
-        $select = $db
-            ->select()
-            ->from($this->_tableName, array($this->_structure['left'], $this->_structure['right']))
-            ->where($this->_structure['id'] . ' = ?', $elementId);
-
-        $stmt  = $db->query($select);
-        $child = $stmt->fetch();
-
-        $select = $db
-            ->select()
-            ->from($this->_tableName, array($this->_structure['id'], $this->_structure['name']))
-            ->where($this->_structure['left'] . ' < ?', $child[$this->_structure['left']])
-            ->where($this->_structure['right'] . ' > ?', $child[$this->_structure['right']])
-            ->order('(' . $child[$this->_structure['left']] . ' - ' . $this->_structure['left'] . ')')
-            ->limitPage($depth, 1);
-
-        $stmt   = $db->query($select);
-        $result = $stmt->fetch();
-
-        return $result;
+        return (new NestedSet_Model_Reader)->getParent($this, $elementId, $depth);
     }
 
     /**
@@ -896,7 +370,7 @@ class NestedSet_Model
      */
     public function numberOfDescendant($elementId)
     {
-        $width = $this->_getNodeWidth($elementId);
+        $width = (new NestedSet_Model_Reader)->getNodeWidth($this, $elementId);
         $result = ($width - 2) / 2;
 
         return $result;
@@ -911,26 +385,6 @@ class NestedSet_Model
      */
     public function isRoot($elementId)
     {
-        $db        = $this->_db;
-        $elementId = (int) $elementId;
-
-        $query = "
-            SELECT 1
-              FROM {$this->_tableName}
-             WHERE {$this->_structure['id']} = $elementId
-               AND {$this->_structure['left']} = (
-                       SELECT MIN({$this->_structure['left']})
-                       FROM {$this->_tableName}
-                   )
-               AND {$this->_structure['right']} = (
-                       SELECT MAX({$this->_structure['right']})
-                         FROM {$this->_tableName}
-                   )
-        ";
-
-        $stmt   = $this->_db->query($query);
-        $result = $stmt->fetchColumn();
-
-        return (boolean) $result;
+        return (new NestedSet_Model_Reader)->isRoot($this, $elementId);
     }
 }
