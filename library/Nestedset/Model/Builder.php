@@ -206,4 +206,54 @@ class NestedSet_Model_Builder
             throw $e;
         }
     }
+
+    /**
+     * Recursively delete a node, with all its children
+     *
+     * @param $model|NestedSet_Model    Nested set model
+     * @param $tree|array
+     *
+     * @return $this
+     */
+    public function deleteRecursive(NestedSet_Model $nestedset, array $tree)
+    {
+        $db = $nestedset->getDb();
+
+        // get interval for recursive delete
+        $left  = (int) $tree[$nestedset->getStructureLeft()];
+        $right = (int) $tree[$nestedset->getStructureRight()];
+
+        try {
+            $db->beginTransaction();
+
+            $delete = $db->delete($nestedset->getTableName(), "{$nestedset->getStructureLeft()} BETWEEN $left AND $right");
+
+            // update other elements
+            $width = $right - $left + 1;
+
+            // update right
+            $stmt = $db->query("
+                UPDATE {$nestedset->getTableName()}
+                   SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} - $width
+                 WHERE {$nestedset->getStructureRight()} > $right
+            ");
+            $update = $stmt->fetch();
+
+            // update left
+            $stmt = $db->query("
+                UPDATE {$nestedset->getTableName()}
+                   SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} - $width
+                 WHERE {$nestedset->getStructureLeft()} > $right
+            ");
+            $update = $stmt->fetch();
+
+            $db->commit();
+        }
+        catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+
+        return $this;
+    }
 }

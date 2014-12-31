@@ -208,58 +208,9 @@ class NestedSet_Model
         }
 
         if ($isRecursive) {
-            $this->_deleteRecursive($result);
+            (new NestedSet_Model_Builder)->deleteRecursive($this, $result);
         } else {
             // @TODO
-        }
-
-        return $this;
-    }
-
-    /**
-     * Recursively delete a node, with all its children
-     *
-     * @param $tree|array
-     *
-     * @return $this
-     */
-    protected function _deleteRecursive(array $tree)
-    {
-        $db = $this->_db;
-
-        // get interval for recursive delete
-        $left  = (int) $tree[$this->_structure['left']];
-        $right = (int) $tree[$this->_structure['right']];
-
-        try {
-            $db->beginTransaction();
-
-            $delete = $db->delete($this->_tableName, "{$this->_structure['left']} BETWEEN $left AND $right");
-
-            // update other elements
-            $width = $right - $left + 1;
-
-            // update right
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['right']} = {$this->_structure['right']} - $width
-                 WHERE {$this->_structure['right']} > $right
-            ");
-            $update = $stmt->fetch();
-
-            // update left
-            $stmt = $db->query("
-                UPDATE {$this->_tableName}
-                   SET {$this->_structure['left']} = {$this->_structure['left']} - $width
-                 WHERE {$this->_structure['left']} > $right
-            ");
-            $update = $stmt->fetch();
-
-            $db->commit();
-        }
-        catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
         }
 
         return $this;
