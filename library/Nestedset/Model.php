@@ -193,7 +193,7 @@ class NestedSet_Model
         $isRecursive = (boolean) $recursive;
         $id          = (integer) $id;
 
-        $db = $this->_db;
+        $db = $this->getDb();
 
         $select = $db
             ->select()
@@ -226,7 +226,7 @@ class NestedSet_Model
      */
     public function move($elementId, $referenceId, $position = 'into')
     {
-        $db = $this->_db;
+        $db = $this->getDb();
 
         $reference = $this->getElement($referenceId);
         $element   = $this->getElement($elementId); // @TODO get one level, we don't need all this tree
