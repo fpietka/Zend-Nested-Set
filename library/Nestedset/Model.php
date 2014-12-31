@@ -228,8 +228,8 @@ class NestedSet_Model
     {
         $db = $this->_db;
 
-        $reference = $this->_getElement($referenceId);
-        $element   = $this->_getElement($elementId); // @TODO get one level, we don't need all this tree
+        $reference = $this->getElement($referenceId);
+        $element   = $this->getElement($elementId); // @TODO get one level, we don't need all this tree
 
         // error handling
         if (empty($element) || empty($reference)) {
