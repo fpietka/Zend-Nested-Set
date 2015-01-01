@@ -2,6 +2,9 @@
 
 INSTALLATION
 =======================================================================
+
+The minimum requirement is that your Web server supports PHP 5.4.
+
 This application requires that you either have Zend Framework on your
 include_path, or that you will be symlinking your Zend Framework library
 into the library directory. If you do not yet have Zend Framework, you
