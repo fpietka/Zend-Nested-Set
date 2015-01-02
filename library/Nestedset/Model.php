@@ -209,8 +209,9 @@ class NestedSet_Model
 
         if ($isRecursive) {
             (new NestedSet_Model_Builder)->deleteRecursive($this, $result);
-        } else {
-            // @TODO
+        }
+        else {
+            (new NestedSet_Model_Builder)->deleteNonRecursive($this, $result);
         }
 
         return $this;
