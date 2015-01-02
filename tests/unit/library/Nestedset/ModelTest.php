@@ -169,6 +169,45 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($nestedset->toJson(), $expected_result);
     }
 
+    public function testDeleteNonRecursiveElement()
+    {
+        $nestedset = new NestedSet_Model();
+
+        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $nestedset->setDb($db);
+        $nestedset->setTableName('nested');
+
+        $nestedset->add('foo');
+        $nestedset->add('bar', 1);
+        $nestedset->delete(1, false);
+
+        $expected_result = file_get_contents('tests/expected_result_simple_non_recursive_delete.json');
+
+        $this->assertEquals($nestedset->toJson(), $expected_result);
+
+        // clear it up
+        $nestedset->delete(2, true);
+
+        // More complex case
+        $nestedset->add('main');
+
+        $nestedset->add('foo', 3);
+        $nestedset->add('bar', 3);
+
+        $nestedset->add('one', 4);
+        $nestedset->add('two', 4);
+        $nestedset->add('three', 4);
+
+        $nestedset->add('one', 5);
+        $nestedset->add('two', 5);
+
+        $nestedset->delete(5, false);
+
+        $expected_result = file_get_contents('tests/expected_result_complex_non_recursive_delete.json');
+
+        $this->assertEquals($nestedset->toJson(), $expected_result);
+    }
+
     public function testGetElement()
     {
         $nestedset = new NestedSet_Model();

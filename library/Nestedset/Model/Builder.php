@@ -256,4 +256,69 @@ class NestedSet_Model_Builder
 
         return $this;
     }
+
+    /**
+     * Delete a node, but move all its children outside first
+     *
+     * @param $model|NestedSet_Model    Nested set model
+     * @param $tree|array
+     *
+     * @return $this
+     */
+    public function deleteNonRecursive(NestedSet_Model $nestedset, array $tree)
+    {
+        $db = $nestedset->getDb();
+
+        $left = (int) $tree[$nestedset->getStructureLeft()];
+        $right = (int) $tree[$nestedset->getStructureRight()];
+
+        try {
+            $db->beginTransaction();
+
+            $delete = $db->delete($nestedset->getTableName(), "{$nestedset->getStructureId()} = {$tree[$nestedset->getStructureId()]}");
+
+            // update other elements
+            $width = 2;
+
+            // update right for inner elements
+            $stmt = $db->query("
+                UPDATE {$nestedset->getTableName()}
+                   SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} - 1
+                 WHERE {$nestedset->getStructureLeft()} > $left AND {$nestedset->getStructureRight()} < $right
+            ");
+            $update = $stmt->fetch();
+
+            // update left for inner elements
+            $stmt = $db->query("
+                UPDATE {$nestedset->getTableName()}
+                   SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} - 1
+                 WHERE {$nestedset->getStructureLeft()} > $left AND {$nestedset->getStructureRight()} < $right
+            ");
+            $update = $stmt->fetch();
+
+            // update right for outer elements
+            $stmt = $db->query("
+                UPDATE {$nestedset->getTableName()}
+                   SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} - $width
+                 WHERE {$nestedset->getStructureRight()} > $right
+            ");
+            $update = $stmt->fetch();
+
+            // update left for outer elements
+            $stmt = $db->query("
+                UPDATE {$nestedset->getTableName()}
+                   SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} - $width
+                 WHERE {$nestedset->getStructureLeft()} > $left AND {$nestedset->getStructureRight()} >= $right
+            ");
+            $update = $stmt->fetch();
+
+            $db->commit();
+        }
+        catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+
+        return $this;
+    }
 }

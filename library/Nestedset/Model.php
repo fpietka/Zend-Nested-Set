@@ -197,7 +197,7 @@ class NestedSet_Model
 
         $select = $db
             ->select()
-            ->from($this->_tableName, array($this->_structure['left'], $this->_structure['right']))
+            ->from($this->_tableName, array($this->_structure['id'], $this->_structure['left'], $this->_structure['right']))
             ->where($this->_structure['id'] . ' = ?', $id);
 
         $stmt   = $db->query($select);
@@ -209,8 +209,9 @@ class NestedSet_Model
 
         if ($isRecursive) {
             (new NestedSet_Model_Builder)->deleteRecursive($this, $result);
-        } else {
-            // @TODO
+        }
+        else {
+            (new NestedSet_Model_Builder)->deleteNonRecursive($this, $result);
         }
 
         return $this;
