@@ -275,37 +275,37 @@ class NestedSet_Model
     /**
      * Convert a tree array (with depth) into a hierarchical array.
      *
-     * @param $tree|array   Array with depth value.
+     * @param $nodes|array   Array with depth value.
      *
      * @return array
      */
-    public function toArray($tree = null)
+    public function toArray(array $nodes = array())
     {
-        return (new NestedSet_Model_Output)->toArray($this, $tree);
+        return (new NestedSet_Model_Output)->toArray($this, $nodes);
     }
 
     /**
      * Convert a tree array (with depth) into a hierarchical XML string.
      *
-     * @param $tree|array   Array with depth value.
+     * @param $nodes|array   Array with depth value.
      *
      * @return string
      */
-    public function toXml($tree = null)
+    public function toXml(array $nodes = array())
     {
-        return (new NestedSet_Model_Output)->toXml($this, $tree);
+        return (new NestedSet_Model_Output)->toXml($this, $nodes);
     }
 
     /**
      * Return nested set as JSON
      *
-     * @params $tree|array          Original 'flat' nested tree
+     * @params $nodes|array          Original 'flat' nested tree
      *
      * @return string
      */
-    public function toJson($tree = null)
+    public function toJson(array $nodes = array())
     {
-        return (new NestedSet_Model_Output)->toJson($this, $tree);
+        return (new NestedSet_Model_Output)->toJson($this, $nodes);
     }
 
     /**
@@ -316,9 +316,9 @@ class NestedSet_Model
      *
      * @return string
      */
-    public function toHtml($tree = null, $method = 'list')
+    public function toHtml(array $nodes = array(), $method = 'list')
     {
-        return (new NestedSet_Model_Output)->toHtml($this, $tree, $method);
+        return (new NestedSet_Model_Output)->toHtml($this, $nodes, $method);
     }
 
     /**

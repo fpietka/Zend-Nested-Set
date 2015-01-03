@@ -6,17 +6,14 @@ class NestedSet_Model_Output
      * Convert a tree array (with depth) into a hierarchical array.
      *
      * @param $model|NestedSet_Model    Nested set model
-     * @param $tree|array   Array with depth value.
+     * @param $nodes|array   Array with depth value.
      *
      * @return array
      */
-    public function toArray(NestedSet_Model $nestedset, $tree = null)
+    public function toArray(NestedSet_Model $nestedset, array $nodes = array())
     {
-        if (empty($tree) || !is_array($tree)) {
+        if (empty($nodes)) {
             $nodes = $nestedset->getAll();
-        }
-        else {
-            $nodes = $tree;
         }
 
         $result     = array();
@@ -64,17 +61,14 @@ class NestedSet_Model_Output
      * Convert a tree array (with depth) into a hierarchical XML string.
      *
      * @param $model|NestedSet_Model    Nested set model
-     * @param $tree|array   Array with depth value.
+     * @param $nodes|array   Array with depth value.
      *
      * @return string
      */
-    public function toXml(NestedSet_Model $nestedset, $tree = null)
+    public function toXml(NestedSet_Model $nestedset, array $nodes = array())
     {
-        if (empty($tree) || !is_array($tree)) {
+        if (empty($nodes)) {
             $nodes = $nestedset->getAll();
-        }
-        else {
-            $nodes = $tree;
         }
 
         $xml  = new DomDocument('1.0');
@@ -119,13 +113,13 @@ class NestedSet_Model_Output
     /**
      * Return nested set as JSON
      *
-     * @params $tree|array          Original 'flat' nested tree
+     * @params $nodes|array          Original 'flat' nested tree
      *
      * @return string
      */
-    public function toJson(NestedSet_Model $nestedset, $tree = null)
+    public function toJson(NestedSet_Model $nestedset, array $nodes = array())
     {
-        $nestedArray = $this->toArray($nestedset, $tree);
+        $nestedArray = $this->toArray($nestedset, $nodes);
         $result      = json_encode($nestedArray);
 
         return $result;
@@ -141,13 +135,10 @@ class NestedSet_Model_Output
      *
      * @return string
      */
-    public function toHtml(NestedSet_Model $nestedset, $tree = null, $method = 'list')
+    public function toHtml(NestedSet_Model $nestedset, array $nodes = array(), $method = 'list')
     {
-        if (empty($tree) || !is_array($tree)) {
+        if (empty($nodes)) {
             $nodes = $nestedset->getAll();
-        }
-        else {
-            $nodes = $tree;
         }
 
         switch ($method) {
