@@ -5,52 +5,44 @@ class NestedSet_Model_Output
     /**
      * Convert a tree array (with depth) into a hierarchical array.
      *
-     * @param $model|NestedSet_Model    Nested set model
      * @param $nodes|array   Array with depth value.
      *
      * @return array
      */
-    public function toArray(NestedSet_Model $nestedset, array $nodes = array())
+    public function toArray(array $nodes)
     {
-        if (empty($nodes)) {
-            $nodes = $nestedset->getAll();
-        }
-
         $result     = array();
         $stackLevel = 0;
 
-        if (count($nodes) > 0) {
-            // Node Stack. Used to help building the hierarchy
-            $stack = array();
+        // Node Stack. Used to help building the hierarchy
+        $stack = array();
 
-            foreach ($nodes as $node) {
-                $node['children'] = array();
+        foreach ($nodes as $node) {
+            $node['children'] = array();
 
-                // Number of stack items
-                $stackLevel = count($stack);
+            // Number of stack items
+            $stackLevel = count($stack);
 
-                // Check if we're dealing with different levels
-                while ($stackLevel > 0 && $stack[$stackLevel - 1]['depth'] >= $node['depth']) {
-                    array_pop($stack);
-                    $stackLevel--;
-                }
+            // Check if we're dealing with different levels
+            while ($stackLevel > 0 && $stack[$stackLevel - 1]['depth'] >= $node['depth']) {
+                array_pop($stack);
+                $stackLevel--;
+            }
 
-                // Stack is empty (we are inspecting the root)
-                if ($stackLevel == 0) {
-                    // Assigning the root node
-                    $i = count($result);
+            // Stack is empty (we are inspecting the root)
+            if ($stackLevel == 0) {
+                // Assigning the root node
+                $i = count($result);
 
-                    // $result[$i] = $item;
-                    $result[$i] = $node;
-                    $stack[] =& $result[$i];
-                }
-                else {
-                    // Add node to parent
-                    $i = count($stack[$stackLevel - 1]['children']);
+                $result[$i] = $node;
+                $stack[] =& $result[$i];
+            }
+            else {
+                // Add node to parent
+                $i = count($stack[$stackLevel - 1]['children']);
 
-                    $stack[$stackLevel - 1]['children'][$i] = $node;
-                    $stack[] =& $stack[$stackLevel - 1]['children'][$i];
-                }
+                $stack[$stackLevel - 1]['children'][$i] = $node;
+                $stack[] =& $stack[$stackLevel - 1]['children'][$i];
             }
         }
 
@@ -60,17 +52,12 @@ class NestedSet_Model_Output
     /**
      * Convert a tree array (with depth) into a hierarchical XML string.
      *
-     * @param $model|NestedSet_Model    Nested set model
      * @param $nodes|array   Array with depth value.
      *
      * @return string
      */
-    public function toXml(NestedSet_Model $nestedset, array $nodes = array())
+    public function toXml(array $nodes)
     {
-        if (empty($nodes)) {
-            $nodes = $nestedset->getAll();
-        }
-
         $xml  = new DomDocument('1.0');
         $xml->preserveWhiteSpace = false;
         $root = $xml->createElement('root');
@@ -117,9 +104,9 @@ class NestedSet_Model_Output
      *
      * @return string
      */
-    public function toJson(NestedSet_Model $nestedset, array $nodes = array())
+    public function toJson(array $nodes)
     {
-        $nestedArray = $this->toArray($nestedset, $nodes);
+        $nestedArray = $this->toArray($nodes);
         $result      = json_encode($nestedArray);
 
         return $result;
@@ -135,37 +122,28 @@ class NestedSet_Model_Output
      *
      * @return string
      */
-    public function toHtml(NestedSet_Model $nestedset, array $nodes = array(), $method = 'list')
+    public function toHtml(array $nodes, $method = 'list')
     {
-        if (empty($nodes)) {
-            $nodes = $nestedset->getAll();
-        }
-
         switch ($method) {
             case 'list':
             default:
-                return $this->_toHtmlList($nestedset, $nodes);
+                return $this->_toHtmlList($nodes);
         }
     }
 
     /**
      * Returns all elements as <ul>/<li> structure
      *
-     * Possible options:
-     *  - list (simple <ul><li>)
-     *
-     * @param $nestedset|NestedSet_Model
      * @param $nodes|array
      *
      * @return string
      */
-    protected function _toHtmlList(NestedSet_Model $nestedset, array $nodes)
+    protected function _toHtmlList(array $nodes)
     {
         $result = "<ul>";
         $depth  = $nodes[0]['depth'];
 
         foreach ($nodes as $node) {
-
             if ($depth < $node['depth']) {
                 $result .= "<ul>";
             }
@@ -180,7 +158,7 @@ class NestedSet_Model_Output
 
             // XXX Currently it outputs results according to my actual needs
             // for testing purpose.
-            $result .= "<li>{$node[$nestedset->getStructureName()]} (id: {$node[$nestedset->getStructureId()]} left: {$node[$nestedset->getStructureLeft()]} right: {$node[$nestedset->getStructureRight()]})";
+            $result .= "<li>{$node['name']} (id: {$node['id']} left: {$node['lft']} right: {$node['rgt']})";
 
             $depth = $node['depth'];
         }
