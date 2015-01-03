@@ -63,7 +63,7 @@ class NestedSet_Model
     public function setTableName($tableName)
     {
         if (!is_null($tableName)) {
-            $this->_tableName = (string) $tableName;
+            $this->_tableName = $tableName;
         }
 
         return $this;
@@ -98,7 +98,7 @@ class NestedSet_Model
      */
     public function setStructureId($fieldName)
     {
-        $this->_structure['id'] = (string) $fieldName;
+        $this->_structure['id'] = $fieldName;
         return $this;
     }
 
@@ -114,7 +114,7 @@ class NestedSet_Model
      */
     public function setStructureName($fieldName)
     {
-        $this->_structure['name'] = (string) $fieldName;
+        $this->_structure['name'] = $fieldName;
         return $this;
     }
 
@@ -130,7 +130,7 @@ class NestedSet_Model
      */
     public function setStructureLeft($fieldName)
     {
-        $this->_structure['left'] = (string) $fieldName;
+        $this->_structure['left'] = $fieldName;
         return $this;
     }
 
@@ -146,7 +146,7 @@ class NestedSet_Model
      */
     public function setStructureRight($fieldName)
     {
-        $this->_structure['right'] = (string) $fieldName;
+        $this->_structure['right'] = $fieldName;
         return $this;
     }
 
@@ -165,8 +165,6 @@ class NestedSet_Model
      */
     public function add($name, $reference = null, $position = 'into')
     {
-        $name = (string) $name;
-
         if (is_null($reference)) {
             (new NestedSet_Model_Builder)->append($this, $name);
         }
@@ -189,10 +187,6 @@ class NestedSet_Model
      */
     public function delete($id, $recursive = true)
     {
-        // initialize required value from method call
-        $isRecursive = (boolean) $recursive;
-        $id          = (integer) $id;
-
         $db = $this->getDb();
 
         $select = $db
@@ -207,7 +201,7 @@ class NestedSet_Model
             return false;
         }
 
-        if ($isRecursive) {
+        if ($recursive) {
             (new NestedSet_Model_Builder)->deleteRecursive($this, $result);
         }
         else {

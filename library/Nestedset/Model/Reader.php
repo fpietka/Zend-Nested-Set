@@ -84,7 +84,6 @@ class NestedSet_Model_Reader
     {
         // @TODO: test -> if multiple elements with depth 1 are found -> error
         $db = $nestedset->getDb();
-        $elementId = (int) $elementId;
 
         // Get main element left and right
         $select = $db
@@ -173,7 +172,6 @@ class NestedSet_Model_Reader
     public function getPath(NestedSet_Model $nestedset, $elementId, $order = 'ASC')
     {
         $db = $nestedset->getDb();
-        $elementId = (int) $elementId;
 
         $query = "
             SELECT
@@ -242,7 +240,6 @@ class NestedSet_Model_Reader
     public function isRoot(NestedSet_Model $nestedset, $elementId)
     {
         $db = $nestedset->getDb();
-        $elementId = (int) $elementId;
 
         $query = "
             SELECT 1
