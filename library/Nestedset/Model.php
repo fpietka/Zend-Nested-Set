@@ -281,11 +281,7 @@ class NestedSet_Model
      */
     public function toArray(array $nodes = array())
     {
-        if (empty($nodes)) {
-            $nodes = $this->getAll();
-        }
-
-        return (new NestedSet_Model_Output)->toArray($nodes);
+        return $this->_output('array', $nodes);
     }
 
     /**
@@ -297,11 +293,7 @@ class NestedSet_Model
      */
     public function toXml(array $nodes = array())
     {
-        if (empty($nodes)) {
-            $nodes = $this->getAll();
-        }
-
-        return (new NestedSet_Model_Output)->toXml($nodes);
+        return $this->_output('xml', $nodes);
     }
 
     /**
@@ -313,11 +305,7 @@ class NestedSet_Model
      */
     public function toJson(array $nodes = array())
     {
-        if (empty($nodes)) {
-            $nodes = $this->getAll();
-        }
-
-        return (new NestedSet_Model_Output)->toJson($nodes);
+        return $this->_output('json', $nodes);
     }
 
     /**
@@ -330,11 +318,26 @@ class NestedSet_Model
      */
     public function toHtml(array $nodes = array(), $method = 'list')
     {
+        return $this->_output('html', $nodes, $method);
+    }
+
+    protected function _output($mode, array $nodes, $method = null)
+    {
         if (empty($nodes)) {
             $nodes = $this->getAll();
         }
 
-        return (new NestedSet_Model_Output)->toHtml($nodes, $method);
+        switch ($mode) {
+            case 'html':
+                return (new NestedSet_Model_Output)->toHtml($nodes, $method);
+            case 'json':
+                return (new NestedSet_Model_Output)->toJson($nodes);
+            case 'xml':
+                return (new NestedSet_Model_Output)->toXml($nodes);
+            case 'array':
+            default:
+                return (new NestedSet_Model_Output)->toArray($nodes);
+        }
     }
 
     /**
