@@ -132,7 +132,7 @@ class NestedSet_Model_Output
     }
 
     /**
-     * Returns all elements as <ul>/<li> structure
+     * Returns all elements as HTML structure
      *
      * Possible options:
      *  - list (simple <ul><li>)
@@ -150,35 +150,53 @@ class NestedSet_Model_Output
             $nodes = $tree;
         }
 
-        if ($method == 'list') {
-            $result = "<ul>";
-            $depth  = $nodes[0]['depth'];
+        switch ($method) {
+            case 'list':
+            default:
+                return $this->_toHtmlList($nestedset, $nodes);
+        }
+    }
 
-            foreach ($nodes as $node) {
+    /**
+     * Returns all elements as <ul>/<li> structure
+     *
+     * Possible options:
+     *  - list (simple <ul><li>)
+     *
+     * @param $nestedset|NestedSet_Model
+     * @param $nodes|array
+     *
+     * @return string
+     */
+    protected function _toHtmlList(NestedSet_Model $nestedset, array $nodes)
+    {
+        $result = "<ul>";
+        $depth  = $nodes[0]['depth'];
 
-                if ($depth < $node['depth']) {
-                    $result .= "<ul>";
+        foreach ($nodes as $node) {
+
+            if ($depth < $node['depth']) {
+                $result .= "<ul>";
+            }
+            elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
+                $result .= "</li>";
+            }
+            elseif ($depth > $node['depth']) {
+                for ($i = 0; $i < ($depth - $node['depth']); $i++) {
+                    $result .= "</li></ul>";
                 }
-                elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
-                    $result .= "</li>";
-                }
-                elseif ($depth > $node['depth']) {
-                    for ($i = 0; $i < ($depth - $node['depth']); $i++) {
-                        $result .= "</li></ul>";
-                    }
-                }
-
-                // XXX Currently it outputs results according to my actual needs
-                // for testing purpose.
-                $result .= "<li>{$node[$nestedset->getStructureName()]} (id: {$node[$nestedset->getStructureId()]} left: {$node[$nestedset->getStructureLeft()]} right: {$node[$nestedset->getStructureRight()]})";
-
-                $depth = $node['depth'];
             }
 
-            $result .= "</li></ul>";
-            $result .= "</ul>";
+            // XXX Currently it outputs results according to my actual needs
+            // for testing purpose.
+            $result .= "<li>{$node[$nestedset->getStructureName()]} (id: {$node[$nestedset->getStructureId()]} left: {$node[$nestedset->getStructureLeft()]} right: {$node[$nestedset->getStructureRight()]})";
 
-            return $result;
+            $depth = $node['depth'];
         }
+
+        $result .= "</li></ul>";
+        $result .= "</ul>";
+
+        return $result;
     }
 }
