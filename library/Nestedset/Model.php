@@ -30,27 +30,27 @@
  * never outputed that way.
  *
  * @version 0.5
+ *
  * @author  François Pietka (fpietka)
  *
  * Powered by Nextcode, 2009
  */
-
-class NestedSet_Model
+class Nestedset_Model
 {
     /**
-     * In MySQL and PostgreSQL, 'left' and 'right' are reserved words
+     * In MySQL and PostgreSQL, 'left' and 'right' are reserved words.
      *
      * This represent the default table structure
      */
-    protected $_structure = array(
+    protected $_structure = [
         'id'    => 'id',
         'name'  => 'name',
         'left'  => 'lft',
         'right' => 'rgt',
-    );
+    ];
 
     /**
-     * Database informations required to locate/save the set
+     * Database informations required to locate/save the set.
      */
     protected $_db;
     protected $_tableName;
@@ -99,6 +99,7 @@ class NestedSet_Model
     public function setStructureId($fieldName)
     {
         $this->_structure['id'] = $fieldName;
+
         return $this;
     }
 
@@ -115,6 +116,7 @@ class NestedSet_Model
     public function setStructureName($fieldName)
     {
         $this->_structure['name'] = $fieldName;
+
         return $this;
     }
 
@@ -131,6 +133,7 @@ class NestedSet_Model
     public function setStructureLeft($fieldName)
     {
         $this->_structure['left'] = $fieldName;
+
         return $this;
     }
 
@@ -147,6 +150,7 @@ class NestedSet_Model
     public function setStructureRight($fieldName)
     {
         $this->_structure['right'] = $fieldName;
+
         return $this;
     }
 
@@ -166,22 +170,21 @@ class NestedSet_Model
     public function add($name, $reference = null, $position = 'into')
     {
         if (is_null($reference)) {
-            (new NestedSet_Model_Builder)->append($this, $name);
-        }
-        else {
+            (new NestedSet_Model_Builder())->append($this, $name);
+        } else {
             $reference = (int) $reference;
 
-            (new NestedSet_Model_Builder)->addInto($this, $name, $reference);
+            (new NestedSet_Model_Builder())->addInto($this, $name, $reference);
         }
 
         return $this;
     }
 
     /**
-     * If recursive, delete children, else children move up in the tree
+     * If recursive, delete children, else children move up in the tree.
      *
      * @param $id|int               Id of the element to delete
-     * @param $recursive|boolean    Delete element's childrens, default is true
+     * @param $recursive|bool    Delete element's childrens, default is true
      *
      * @return $this
      */
@@ -191,10 +194,10 @@ class NestedSet_Model
 
         $select = $db
             ->select()
-            ->from($this->_tableName, array($this->_structure['id'], $this->_structure['left'], $this->_structure['right']))
-            ->where($this->_structure['id'] . ' = ?', $id);
+            ->from($this->_tableName, [$this->_structure['id'], $this->_structure['left'], $this->_structure['right']])
+            ->where($this->_structure['id'].' = ?', $id);
 
-        $stmt   = $db->query($select);
+        $stmt = $db->query($select);
         $result = $stmt->fetch();
 
         if (!$result) {
@@ -202,10 +205,9 @@ class NestedSet_Model
         }
 
         if ($recursive) {
-            (new NestedSet_Model_Builder)->deleteRecursive($this, $result);
-        }
-        else {
-            (new NestedSet_Model_Builder)->deleteNonRecursive($this, $result);
+            (new NestedSet_Model_Builder())->deleteRecursive($this, $result);
+        } else {
+            (new NestedSet_Model_Builder())->deleteNonRecursive($this, $result);
         }
 
         return $this;
@@ -224,7 +226,7 @@ class NestedSet_Model
         $db = $this->getDb();
 
         $reference = $this->getElement($referenceId);
-        $element   = $this->getElement($elementId); // @TODO get one level, we don't need all this tree
+        $element = $this->getElement($elementId); // @TODO get one level, we don't need all this tree
 
         // error handling
         if (empty($element) || empty($reference)) {
@@ -234,32 +236,32 @@ class NestedSet_Model
         switch ($position) {
             case 'into':
             default:
-                (new NestedSet_Model_Builder)->moveInto($this, $element, $reference);
+                (new NestedSet_Model_Builder())->moveInto($this, $element, $reference);
         }
 
         return true;
     }
 
     /**
-     * Get width of a node
+     * Get width of a node.
      */
     public function getNodeWidth($elementId)
     {
-        return (new NestedSet_Model_Reader)->getNodeWidth($this, $elementId);
+        return (new NestedSet_Model_Reader())->getNodeWidth($this, $elementId);
     }
 
     /**
-     * Get all nodes without children
+     * Get all nodes without children.
      *
      * @return array
      */
     public function getLeafs()
     {
-        return (new NestedSet_Model_Reader)->getLeafs($this);
+        return (new NestedSet_Model_Reader())->getLeafs($this);
     }
 
     /**
-     * Get all elements from nested set
+     * Get all elements from nested set.
      *
      * @param $depth|array      Array of depth wanted. Default is all
      * @param $mode|string      Mode of depth selection: include/exclude
@@ -269,7 +271,7 @@ class NestedSet_Model
      */
     public function getAll($depth = null, $mode = 'include', $order = 'ASC')
     {
-        return (new NestedSet_Model_Reader)->getAll($this, $depth, $mode, $order);
+        return (new NestedSet_Model_Reader())->getAll($this, $depth, $mode, $order);
     }
 
     /**
@@ -279,13 +281,13 @@ class NestedSet_Model
      *
      * @return array
      */
-    public function toArray(array $nodes = array())
+    public function toArray(array $nodes = [])
     {
         if (empty($nodes)) {
             $nodes = $this->getAll();
         }
 
-        return (new NestedSet_Model_Output)->toArray($nodes);
+        return (new NestedSet_Model_Output())->toArray($nodes);
     }
 
     /**
@@ -295,59 +297,58 @@ class NestedSet_Model
      *
      * @return string
      */
-    public function toXml(array $nodes = array())
+    public function toXml(array $nodes = [])
     {
         if (empty($nodes)) {
             $nodes = $this->getAll();
         }
 
-        return (new NestedSet_Model_Output)->toXml($nodes);
+        return (new NestedSet_Model_Output())->toXml($nodes);
     }
 
     /**
-     * Return nested set as JSON
+     * Return nested set as JSON.
      *
      * @params $nodes|array          Original 'flat' nested tree
      *
      * @return string
      */
-    public function toJson(array $nodes = array())
+    public function toJson(array $nodes = [])
     {
         if (empty($nodes)) {
             $nodes = $this->getAll();
         }
 
-        return (new NestedSet_Model_Output)->toJson($nodes);
+        return (new NestedSet_Model_Output())->toJson($nodes);
     }
 
     /**
-     * Returns all elements as <ul>/<li> structure
+     * Returns all elements as <ul>/<li> structure.
      *
      * Possible options:
      *  - list (simple <ul><li>)
      *
      * @return string
      */
-    public function toHtml(array $nodes = array(), $method = 'list')
+    public function toHtml(array $nodes = [], $method = 'list')
     {
         if (empty($nodes)) {
             $nodes = $this->getAll();
         }
 
-        return (new NestedSet_Model_Output)->toHtml($nodes, $method);
+        return (new NestedSet_Model_Output())->toHtml($nodes, $method);
     }
 
     /**
-     * Public method to get an element
-     *
+     * Public method to get an element.
      */
     public function getElement($elementId, $depth = null)
     {
-        return (new NestedSet_Model_Reader)->getElement($this, $elementId, $depth);
+        return (new NestedSet_Model_Reader())->getElement($this, $elementId, $depth);
     }
 
     /**
-     * Get path of an element
+     * Get path of an element.
      *
      * @param $elementId|int    Id of the element we want the path of
      *
@@ -355,7 +356,7 @@ class NestedSet_Model
      */
     public function getPath($elementId, $order = 'ASC')
     {
-        return (new NestedSet_Model_Reader)->getPath($this, $elementId, $order);
+        return (new NestedSet_Model_Reader())->getPath($this, $elementId, $order);
     }
 
     /**
@@ -369,7 +370,7 @@ class NestedSet_Model
      */
     public function getParent($elementId, $depth = 1)
     {
-        return (new NestedSet_Model_Reader)->getParent($this, $elementId, $depth);
+        return (new NestedSet_Model_Reader())->getParent($this, $elementId, $depth);
     }
 
     /**
@@ -381,7 +382,7 @@ class NestedSet_Model
      */
     public function numberOfDescendant($elementId)
     {
-        $width = (new NestedSet_Model_Reader)->getNodeWidth($this, $elementId);
+        $width = (new NestedSet_Model_Reader())->getNodeWidth($this, $elementId);
         $result = ($width - 2) / 2;
 
         return $result;
@@ -392,10 +393,10 @@ class NestedSet_Model
      *
      * @param $elementId|int    Element ID
      *
-     * @return boolean
+     * @return bool
      */
     public function isRoot($elementId)
     {
-        return (new NestedSet_Model_Reader)->isRoot($this, $elementId);
+        return (new NestedSet_Model_Reader())->isRoot($this, $elementId);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-class NestedSet_Model_Output
+class Nestedset_Model_Output
 {
     /**
      * Convert a tree array (with depth) into a hierarchical array.
@@ -11,14 +11,14 @@ class NestedSet_Model_Output
      */
     public function toArray(array $nodes)
     {
-        $result     = array();
+        $result = [];
         $stackLevel = 0;
 
         // Node Stack. Used to help building the hierarchy
-        $stack = array();
+        $stack = [];
 
         foreach ($nodes as $node) {
-            $node['children'] = array();
+            $node['children'] = [];
 
             // Number of stack items
             $stackLevel = count($stack);
@@ -35,14 +35,13 @@ class NestedSet_Model_Output
                 $i = count($result);
 
                 $result[$i] = $node;
-                $stack[] =& $result[$i];
-            }
-            else {
+                $stack[] = &$result[$i];
+            } else {
                 // Add node to parent
                 $i = count($stack[$stackLevel - 1]['children']);
 
                 $stack[$stackLevel - 1]['children'][$i] = $node;
-                $stack[] =& $stack[$stackLevel - 1]['children'][$i];
+                $stack[] = &$stack[$stackLevel - 1]['children'][$i];
             }
         }
 
@@ -58,13 +57,13 @@ class NestedSet_Model_Output
      */
     public function toXml(array $nodes)
     {
-        $xml  = new DomDocument('1.0');
+        $xml = new DomDocument('1.0');
         $xml->preserveWhiteSpace = false;
         $root = $xml->createElement('root');
         $xml->appendChild($root);
 
         $depth = 0;
-        $currentChildren = array();
+        $currentChildren = [];
 
         foreach ($nodes as $node) {
             $element = $xml->createElement('element');
@@ -80,13 +79,11 @@ class NestedSet_Model_Output
                 // Handle root
                 $root->appendChild($element);
                 $currentChildren[0] = $children;
-            }
-            elseif ($node['depth'] > $depth) {
+            } elseif ($node['depth'] > $depth) {
                 // is a new sub level
                 $currentChildren[$depth]->appendChild($element);
                 $currentChildren[$node['depth']] = $children;
-            }
-            elseif ($node['depth'] == $depth || $node['depth'] < $depth) {
+            } elseif ($node['depth'] == $depth || $node['depth'] < $depth) {
                 // is at the same level
                 $currentChildren[$node['depth'] - 1]->appendChild($element);
             }
@@ -98,7 +95,7 @@ class NestedSet_Model_Output
     }
 
     /**
-     * Return nested set as JSON
+     * Return nested set as JSON.
      *
      * @params $nodes|array          Original 'flat' nested tree
      *
@@ -107,13 +104,13 @@ class NestedSet_Model_Output
     public function toJson(array $nodes)
     {
         $nestedArray = $this->toArray($nodes);
-        $result      = json_encode($nestedArray);
+        $result = json_encode($nestedArray);
 
         return $result;
     }
 
     /**
-     * Returns all elements as HTML structure
+     * Returns all elements as HTML structure.
      *
      * Possible options:
      *  - list (simple <ul><li>)
@@ -132,7 +129,7 @@ class NestedSet_Model_Output
     }
 
     /**
-     * Returns all elements as <ul>/<li> structure
+     * Returns all elements as <ul>/<li> structure.
      *
      * @param $nodes|array
      *
@@ -140,19 +137,17 @@ class NestedSet_Model_Output
      */
     protected function _toHtmlList(array $nodes)
     {
-        $result = "<ul>";
-        $depth  = $nodes[0]['depth'];
+        $result = '<ul>';
+        $depth = $nodes[0]['depth'];
 
         foreach ($nodes as $node) {
             if ($depth < $node['depth']) {
-                $result .= "<ul>";
-            }
-            elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
-                $result .= "</li>";
-            }
-            elseif ($depth > $node['depth']) {
+                $result .= '<ul>';
+            } elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
+                $result .= '</li>';
+            } elseif ($depth > $node['depth']) {
                 for ($i = 0; $i < ($depth - $node['depth']); $i++) {
-                    $result .= "</li></ul>";
+                    $result .= '</li></ul>';
                 }
             }
 
@@ -163,8 +158,8 @@ class NestedSet_Model_Output
             $depth = $node['depth'];
         }
 
-        $result .= "</li></ul>";
-        $result .= "</ul>";
+        $result .= '</li></ul>';
+        $result .= '</ul>';
 
         return $result;
     }
