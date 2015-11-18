@@ -1,6 +1,6 @@
 <?php
 
-class NestedSet_Model_Reader
+class Nestedset_Model_Reader
 {
     /**
      * Get all elements from nested set
@@ -37,14 +37,12 @@ class NestedSet_Model_Reader
 
                 if ($mode == 'exclude') {
                     $mode = '=';
-                }
-                else {
+                } else {
                     $mode = '!=';
                 }
 
                 $query .= "HAVING COUNT(parent.{$nestedset->getStructureName()}) - 1 $mode $depth";
-            }
-            else {
+            } else {
                 foreach ($depth as &$one) {
                     $one = (int) $one;
                 }
@@ -52,8 +50,7 @@ class NestedSet_Model_Reader
 
                 if ($mode == 'exclude') {
                     $mode = 'NOT IN';
-                }
-                else {
+                } else {
                     $mode = 'IN';
                 }
 

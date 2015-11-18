@@ -1,6 +1,6 @@
 <?php
 
-class NestedSet_Model_Output
+class Nestedset_Model_Output
 {
     /**
      * Convert a tree array (with depth) into a hierarchical array.
@@ -36,8 +36,7 @@ class NestedSet_Model_Output
 
                 $result[$i] = $node;
                 $stack[] =& $result[$i];
-            }
-            else {
+            } else {
                 // Add node to parent
                 $i = count($stack[$stackLevel - 1]['children']);
 
@@ -80,13 +79,11 @@ class NestedSet_Model_Output
                 // Handle root
                 $root->appendChild($element);
                 $currentChildren[0] = $children;
-            }
-            elseif ($node['depth'] > $depth) {
+            } elseif ($node['depth'] > $depth) {
                 // is a new sub level
                 $currentChildren[$depth]->appendChild($element);
                 $currentChildren[$node['depth']] = $children;
-            }
-            elseif ($node['depth'] == $depth || $node['depth'] < $depth) {
+            } elseif ($node['depth'] == $depth || $node['depth'] < $depth) {
                 // is at the same level
                 $currentChildren[$node['depth'] - 1]->appendChild($element);
             }
@@ -146,11 +143,9 @@ class NestedSet_Model_Output
         foreach ($nodes as $node) {
             if ($depth < $node['depth']) {
                 $result .= "<ul>";
-            }
-            elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
+            } elseif ($depth == $node['depth'] && $depth > $nodes[0]['depth']) {
                 $result .= "</li>";
-            }
-            elseif ($depth > $node['depth']) {
+            } elseif ($depth > $node['depth']) {
                 for ($i = 0; $i < ($depth - $node['depth']); $i++) {
                     $result .= "</li></ul>";
                 }

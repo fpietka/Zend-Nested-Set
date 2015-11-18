@@ -35,7 +35,7 @@
  * Powered by Nextcode, 2009
  */
 
-class NestedSet_Model
+class Nestedset_Model
 {
     /**
      * In MySQL and PostgreSQL, 'left' and 'right' are reserved words
@@ -167,8 +167,7 @@ class NestedSet_Model
     {
         if (is_null($reference)) {
             (new NestedSet_Model_Builder)->append($this, $name);
-        }
-        else {
+        } else {
             $reference = (int) $reference;
 
             (new NestedSet_Model_Builder)->addInto($this, $name, $reference);
@@ -203,8 +202,7 @@ class NestedSet_Model
 
         if ($recursive) {
             (new NestedSet_Model_Builder)->deleteRecursive($this, $result);
-        }
-        else {
+        } else {
             (new NestedSet_Model_Builder)->deleteNonRecursive($this, $result);
         }
 
