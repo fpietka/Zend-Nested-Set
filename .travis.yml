@@ -17,7 +17,6 @@ before_script:
   - ln -s ../ZendFramework-1.12.7-minimal/library/Zend/ library/
   - composer install --dev
 script:
-  ## Atoum
   - phpunit
 after_script:
   ## Scrutinizer
