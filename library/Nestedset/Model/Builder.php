@@ -1,6 +1,6 @@
 <?php
 
-class NestedSet_Model_Builder
+class Nestedset_Model_Builder
 {
     /**
      * Add an element to the end of the tree.
@@ -23,8 +23,7 @@ class NestedSet_Model_Builder
 
         if (false === $result) {
             $result = 0;
-        }
-        else {
+        } else {
             $result = $result['max'];
         }
 
@@ -43,8 +42,7 @@ class NestedSet_Model_Builder
 
             $db->insert($nestedset->getTableName(), $values);
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -110,8 +108,7 @@ class NestedSet_Model_Builder
 
             $db->insert($nestedset->getTableName(), $values);
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -192,8 +189,7 @@ class NestedSet_Model_Builder
             ");
 
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -238,8 +234,7 @@ class NestedSet_Model_Builder
             ");
 
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -299,8 +294,7 @@ class NestedSet_Model_Builder
             ");
 
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }

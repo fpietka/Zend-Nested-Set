@@ -13,7 +13,7 @@ require_once 'Zend/Db.php';
 require_once 'Zend/Db/Table.php';
 require_once 'Zend/Db/Adapter/Abstract.php';
 
-class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
+class Nestedset_ModelTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -30,8 +30,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
 
     public function afterTestMethod($method)
     {
-        switch ($method)
-        {
+        switch ($method) {
             case 'testAddASimpleElement':
             case 'testDeleteElement':
             case 'testDeleteRecursiveElement':
