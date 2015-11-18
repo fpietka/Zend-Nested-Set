@@ -1,6 +1,6 @@
 <?php
 
-class NestedSet_Model_Builder
+class Nestedset_Model_Builder
 {
     /**
      * Add an element to the end of the tree.
@@ -16,35 +16,33 @@ class NestedSet_Model_Builder
         $db = $nestedset->getDb();
 
         $select = $db->select();
-        $select->from($nestedset->getTableName(), array('max' => "MAX({$nestedset->getStructureRight()})"));
+        $select->from($nestedset->getTableName(), ['max' => "MAX({$nestedset->getStructureRight()})"]);
 
-        $stmt   = $db->query($select);
+        $stmt = $db->query($select);
         $result = $stmt->fetch();
 
         if (false === $result) {
             $result = 0;
-        }
-        else {
+        } else {
             $result = $result['max'];
         }
 
-        $left  = $result + 1;
+        $left = $result + 1;
         $right = $result + 2;
 
         try {
             $db->beginTransaction();
 
             // insert at the end of the nest
-            $values = array(
-                $nestedset->getStructureName() => $name,
-                $nestedset->getStructureLeft() => $left,
+            $values = [
+                $nestedset->getStructureName()  => $name,
+                $nestedset->getStructureLeft()  => $left,
                 $nestedset->getStructureRight() => $right,
-            );
+            ];
 
             $db->insert($nestedset->getTableName(), $values);
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -70,7 +68,7 @@ class NestedSet_Model_Builder
         $select->from($nestedset->getTableName(), $nestedset->getStructureRight());
         $select->where("{$nestedset->getStructureId()} = $reference");
 
-        $stmt   = $db->query($select);
+        $stmt = $db->query($select);
         $result = $stmt->fetch();
 
         $right = $result[$nestedset->getStructureRight()];
@@ -97,21 +95,20 @@ class NestedSet_Model_Builder
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} + 2
                  WHERE {$nestedset->getStructureId()} = :reference;
-            ", array(
+            ", [
                 'reference' => $reference,
-            ));
+            ]);
 
             // insert new element
-            $values = array(
-                $nestedset->getStructureName() => $name,
-                $nestedset->getStructureLeft() => $right,
+            $values = [
+                $nestedset->getStructureName()  => $name,
+                $nestedset->getStructureLeft()  => $right,
                 $nestedset->getStructureRight() => $right + 1,
-            );
+            ];
 
             $db->insert($nestedset->getTableName(), $values);
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -162,8 +159,8 @@ class NestedSet_Model_Builder
             ");
 
             // then move element (and it's children)
-            $element    = $nestedset->getElement($element[0][$nestedset->getStructureId()]);
-            $elementIds = array();
+            $element = $nestedset->getElement($element[0][$nestedset->getStructureId()]);
+            $elementIds = [];
             foreach ($element as $one) {
                 array_push($elementIds, $one[$nestedset->getStructureId()]);
             }
@@ -192,15 +189,14 @@ class NestedSet_Model_Builder
             ");
 
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
     }
 
     /**
-     * Recursively delete a node, with all its children
+     * Recursively delete a node, with all its children.
      *
      * @param $model|NestedSet_Model    Nested set model
      * @param $tree|array
@@ -212,7 +208,7 @@ class NestedSet_Model_Builder
         $db = $nestedset->getDb();
 
         // get interval for recursive delete
-        $left  = (int) $tree[$nestedset->getStructureLeft()];
+        $left = (int) $tree[$nestedset->getStructureLeft()];
         $right = (int) $tree[$nestedset->getStructureRight()];
 
         try {
@@ -238,8 +234,7 @@ class NestedSet_Model_Builder
             ");
 
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -248,7 +243,7 @@ class NestedSet_Model_Builder
     }
 
     /**
-     * Delete a node, but move all its children outside first
+     * Delete a node, but move all its children outside first.
      *
      * @param $model|NestedSet_Model    Nested set model
      * @param $tree|array
@@ -299,8 +294,7 @@ class NestedSet_Model_Builder
             ");
 
             $db->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
             throw $e;
         }

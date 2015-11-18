@@ -1,9 +1,9 @@
 <?php
 
-class NestedSet_Model_Reader
+class Nestedset_Model_Reader
 {
     /**
-     * Get all elements from nested set
+     * Get all elements from nested set.
      *
      * @param $model|NestedSet_Model    Nested set model
      * @param $depth|array      Array of depth wanted. Default is all
@@ -37,14 +37,12 @@ class NestedSet_Model_Reader
 
                 if ($mode == 'exclude') {
                     $mode = '=';
-                }
-                else {
+                } else {
                     $mode = '!=';
                 }
 
                 $query .= "HAVING COUNT(parent.{$nestedset->getStructureName()}) - 1 $mode $depth";
-            }
-            else {
+            } else {
                 foreach ($depth as &$one) {
                     $one = (int) $one;
                 }
@@ -52,8 +50,7 @@ class NestedSet_Model_Reader
 
                 if ($mode == 'exclude') {
                     $mode = 'NOT IN';
-                }
-                else {
+                } else {
                     $mode = 'IN';
                 }
 
@@ -63,7 +60,7 @@ class NestedSet_Model_Reader
 
         $query .= " ORDER BY node.{$nestedset->getStructureLeft()} $order;";
 
-        $stmt  = $db->query($query);
+        $stmt = $db->query($query);
         $nodes = $stmt->fetchAll();
 
         return $nodes;
@@ -71,6 +68,7 @@ class NestedSet_Model_Reader
 
     /**
      * Get one element with its children.
+     *
      * @TODO depth
      *
      * @param $model|NestedSet_Model    Nested set model
@@ -88,10 +86,10 @@ class NestedSet_Model_Reader
         // Get main element left and right
         $select = $db
             ->select()
-            ->from($nestedset->getTableName(), array($nestedset->getStructureLeft(), $nestedset->getStructureRight()))
-            ->where($nestedset->getStructureId() . ' = ?', $elementId);
+            ->from($nestedset->getTableName(), [$nestedset->getStructureLeft(), $nestedset->getStructureRight()])
+            ->where($nestedset->getStructureId().' = ?', $elementId);
 
-        $stmt    = $db->query($select);
+        $stmt = $db->query($select);
         $element = $stmt->fetch();
 
         // Get the tree
@@ -111,14 +109,14 @@ class NestedSet_Model_Reader
              ORDER BY node.{$nestedset->getStructureLeft()} $order
         ";
 
-        $stmt  = $db->query($query);
+        $stmt = $db->query($query);
         $nodes = $stmt->fetchAll();
 
         return $nodes;
     }
 
     /**
-     * Get width of a node
+     * Get width of a node.
      *
      * @param $model|NestedSet_Model    Nested set model
      * @param $elementId|int    Id of the node
@@ -140,7 +138,7 @@ class NestedSet_Model_Reader
     }
 
     /**
-     * Get all nodes without children
+     * Get all nodes without children.
      *
      * @param $model|NestedSet_Model    Nested set model
      *
@@ -152,17 +150,17 @@ class NestedSet_Model_Reader
 
         $select = $db
             ->select()
-            ->from($nestedset->getTableName(), array($nestedset->getStructureId(), $nestedset->getStructureName()))
+            ->from($nestedset->getTableName(), [$nestedset->getStructureId(), $nestedset->getStructureName()])
             ->where("{$nestedset->getStructureRight()} = {$nestedset->getStructureLeft()} + 1");
 
-        $stmt   = $db->query($select);
+        $stmt = $db->query($select);
         $result = $stmt->fetchAll();
 
         return $result;
     }
 
     /**
-     * Get path of an element
+     * Get path of an element.
      *
      * @param $model|NestedSet_Model    Nested set model
      * @param $elementId|int    Id of the element we want the path of
@@ -209,21 +207,21 @@ class NestedSet_Model_Reader
 
         $select = $db
             ->select()
-            ->from($nestedset->getTableName(), array($nestedset->getStructureLeft(), $nestedset->getStructureRight()))
-            ->where($nestedset->getStructureId() . ' = ?', $elementId);
+            ->from($nestedset->getTableName(), [$nestedset->getStructureLeft(), $nestedset->getStructureRight()])
+            ->where($nestedset->getStructureId().' = ?', $elementId);
 
-        $stmt  = $db->query($select);
+        $stmt = $db->query($select);
         $child = $stmt->fetch();
 
         $select = $db
             ->select()
-            ->from($nestedset->getTableName(), array($nestedset->getStructureId(), $nestedset->getStructureName()))
-            ->where($nestedset->getStructureLeft() . ' < ?', $child[$nestedset->getStructureLeft()])
-            ->where($nestedset->getStructureRight() . ' > ?', $child[$nestedset->getStructureRight()])
-            ->order('(' . $child[$nestedset->getStructureLeft()] . ' - ' . $nestedset->getStructureLeft() . ')')
+            ->from($nestedset->getTableName(), [$nestedset->getStructureId(), $nestedset->getStructureName()])
+            ->where($nestedset->getStructureLeft().' < ?', $child[$nestedset->getStructureLeft()])
+            ->where($nestedset->getStructureRight().' > ?', $child[$nestedset->getStructureRight()])
+            ->order('('.$child[$nestedset->getStructureLeft()].' - '.$nestedset->getStructureLeft().')')
             ->limitPage($depth, 1);
 
-        $stmt   = $db->query($select);
+        $stmt = $db->query($select);
         $result = $stmt->fetch();
 
         return $result;
@@ -235,7 +233,7 @@ class NestedSet_Model_Reader
      * @param $model|NestedSet_Model    Nested set model
      * @param $elementId|int    Element ID
      *
-     * @return boolean
+     * @return bool
      */
     public function isRoot(NestedSet_Model $nestedset, $elementId)
     {
@@ -255,7 +253,7 @@ class NestedSet_Model_Reader
                    )
         ";
 
-        $stmt   = $db->query($query);
+        $stmt = $db->query($query);
         $result = $stmt->fetchColumn();
 
         return (boolean) $result;

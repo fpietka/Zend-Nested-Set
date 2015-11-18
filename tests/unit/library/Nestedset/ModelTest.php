@@ -1,7 +1,7 @@
 <?php
 
 // Add library to include path (where ZF should also be located)
-set_include_path(__DIR__ . '/../../../../library');
+set_include_path(__DIR__.'/../../../../library');
 
 require_once 'Nestedset/Model.php';
 require_once 'Nestedset/Model/Builder.php';
@@ -13,11 +13,11 @@ require_once 'Zend/Db.php';
 require_once 'Zend/Db/Table.php';
 require_once 'Zend/Db/Adapter/Abstract.php';
 
-class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
+class Nestedset_ModelTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $db->query('
             CREATE TABLE nested (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,8 +30,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
 
     public function afterTestMethod($method)
     {
-        switch ($method)
-        {
+        switch ($method) {
             case 'testAddASimpleElement':
             case 'testDeleteElement':
             case 'testDeleteRecursiveElement':
@@ -47,7 +46,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
             case 'testNumberOfDescendant':
             case 'testGetParent':
             case 'testGetAll':
-                $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+                $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
                 $db->query('DROP TABLE nested');
                 $db->query('
                     CREATE TABLE nested (
@@ -62,14 +61,13 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $db->query('DROP TABLE nested');
     }
 
     /**
-     * Test setters
+     * Test setters.
      */
-
     public function testSetTableName()
     {
         $nestedset = new NestedSet_Model();
@@ -82,7 +80,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $this->assertInstanceOf('Zend_Db_Adapter_Abstract', $nestedset->getDb());
     }
@@ -123,7 +121,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -140,7 +138,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -156,7 +154,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -173,7 +171,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -212,7 +210,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -227,7 +225,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -240,7 +238,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -254,19 +252,19 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
         $nestedset->add('foo');
         $nestedset->add('bar', 1);
 
-        $expected_result = array(
-            array(
+        $expected_result = [
+            [
                 'name' => 'bar',
-                'id' => '2',
-            )
-        );
+                'id'   => '2',
+            ],
+        ];
 
         $this->assertEquals($nestedset->getLeafs(), $expected_result);
     }
@@ -275,7 +273,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -293,20 +291,20 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
         $nestedset->add('foo');
         $nestedset->add('bar', 1);
 
-        $expected_result = array(
-            0 => array(
-                'id' => '2',
-                'name' => 'bar',
-                'depth' => '1'
-            )
-        );
+        $expected_result = [
+            0 => [
+                'id'    => '2',
+                'name'  => 'bar',
+                'depth' => '1',
+            ],
+        ];
 
         $this->assertEquals($nestedset->getPath(2), $expected_result);
     }
@@ -315,7 +313,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -332,7 +330,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -350,7 +348,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -366,7 +364,7 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
@@ -379,13 +377,13 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
         $nestedset->add('foo');
         $nestedset->add('bar', 1);
-        $expected_result = array('id' => '1', 'name' => 'foo');
+        $expected_result = ['id' => '1', 'name' => 'foo'];
 
         $this->assertEquals($nestedset->getParent(2), $expected_result);
     }
@@ -394,28 +392,28 @@ class NestedSet_ModelTest extends PHPUnit_Framework_TestCase
     {
         $nestedset = new NestedSet_Model();
 
-        $db = Zend_Db::factory('Pdo_Sqlite', array('dbname' => 'tests/test.db'));
+        $db = Zend_Db::factory('Pdo_Sqlite', ['dbname' => 'tests/test.db']);
         $nestedset->setDb($db);
         $nestedset->setTableName('nested');
 
         $nestedset->add('foo');
         $nestedset->add('bar', 1);
-        $expected_result = array(
-            array(
-                'id' => "1",
-                'name' => "foo",
-                'lft' => "1",
-                'rgt' => "4",
-                'depth' => "0"
-            ),
-            array(
-                'id' => "2",
-                'name' => "bar",
-                'lft' => "2",
-                'rgt' => "3",
-                'depth' => "1"
-            )
-        );
+        $expected_result = [
+            [
+                'id'    => '1',
+                'name'  => 'foo',
+                'lft'   => '1',
+                'rgt'   => '4',
+                'depth' => '0',
+            ],
+            [
+                'id'    => '2',
+                'name'  => 'bar',
+                'lft'   => '2',
+                'rgt'   => '3',
+                'depth' => '1',
+            ],
+        ];
 
         $this->assertEquals($nestedset->getAll(2), $expected_result);
     }
