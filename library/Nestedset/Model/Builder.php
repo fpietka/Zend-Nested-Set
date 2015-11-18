@@ -79,21 +79,21 @@ class NestedSet_Model_Builder
             $db->beginTransaction();
 
             // move next elements' right to make room
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} + 2
                  WHERE {$nestedset->getStructureRight()} > $right;
             ");
 
             // move next elements' left
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} + 2
                  WHERE {$nestedset->getStructureLeft()} > $right;
             ");
 
             // make room into parent element
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} + 2
                  WHERE {$nestedset->getStructureId()} = :reference;
@@ -148,14 +148,14 @@ class NestedSet_Model_Builder
 
             // move right
             $referenceRight = $reference[0][$nestedset->getStructureRight()];
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} + $elementWidth
                  WHERE {$nestedset->getStructureRight()} >= $referenceRight;
             ");
 
             // move left
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} + $elementWidth
                  WHERE {$nestedset->getStructureLeft()} > $referenceRight;
@@ -171,7 +171,7 @@ class NestedSet_Model_Builder
 
             $difference = $reference[0][$nestedset->getStructureRight()] - $element[0][$nestedset->getStructureLeft()];
 
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureLeft()}  = {$nestedset->getStructureLeft()}  + $difference,
                        {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} + $difference
@@ -179,13 +179,13 @@ class NestedSet_Model_Builder
             ");
 
             // move what was on the right of the element
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} - $elementWidth
                  WHERE {$nestedset->getStructureLeft()} > {$element[0][$nestedset->getStructureLeft()]};
             ");
 
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} - $elementWidth
                  WHERE {$nestedset->getStructureRight()} > {$element[0][$nestedset->getStructureRight()]};
@@ -224,14 +224,14 @@ class NestedSet_Model_Builder
             $width = $right - $left + 1;
 
             // update right
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} - $width
                  WHERE {$nestedset->getStructureRight()} > $right
             ");
 
             // update left
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} - $width
                  WHERE {$nestedset->getStructureLeft()} > $right
@@ -271,28 +271,28 @@ class NestedSet_Model_Builder
             $width = 2;
 
             // update right for inner elements
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} - 1
                  WHERE {$nestedset->getStructureLeft()} > $left AND {$nestedset->getStructureRight()} < $right
             ");
 
             // update left for inner elements
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} - 1
                  WHERE {$nestedset->getStructureLeft()} > $left AND {$nestedset->getStructureRight()} < $right
             ");
 
             // update right for outer elements
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureRight()} = {$nestedset->getStructureRight()} - $width
                  WHERE {$nestedset->getStructureRight()} > $right
             ");
 
             // update left for outer elements
-            $stmt = $db->query("
+            $db->query("
                 UPDATE {$nestedset->getTableName()}
                    SET {$nestedset->getStructureLeft()} = {$nestedset->getStructureLeft()} - $width
                  WHERE {$nestedset->getStructureLeft()} > $left AND {$nestedset->getStructureRight()} >= $right
